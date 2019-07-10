@@ -203,8 +203,14 @@ getDAscore <- function(cell.labels, cell.idx, labels.1, labels.2){
   # print(idx.label.ratio)
   score <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1]))
   score.n <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1])) / sum(idx.label.ratio)
-  pval.wilcox <- wilcox.test(x = idx.label.ratio[labels.2], idx.label.ratio[labels.1])$p.value
-  pval.ttest <- t.test(x = idx.label.ratio[labels.2], idx.label.ratio[labels.1])$p.value
+  
+  if(length(labels.1) > 1 & length(labels.2) > 1){
+    pval.wilcox <- wilcox.test(x = idx.label.ratio[labels.2], idx.label.ratio[labels.1])$p.value
+    pval.ttest <- t.test(x = idx.label.ratio[labels.2], idx.label.ratio[labels.1])$p.value
+  } else {
+    pval.wilcox <- NA
+    pval.ttest <- NA
+  }
   
   return(c("DA.score" = score.n, "pval.wilcoxon" = pval.wilcox, "pval.ttest" = pval.ttest))
 }
