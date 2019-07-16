@@ -195,14 +195,18 @@ getDAscore <- function(cell.labels, cell.idx, labels.1, labels.2){
   labels.1 <- labels.1[labels.1 %in% cell.labels]
   labels.2 <- labels.2[labels.2 %in% cell.labels]
   
+  idx.label <- cell.labels[cell.idx]
+  ratio.1 <- sum(idx.label %in% labels.1) / sum(cell.labels %in% labels.1)
+  ratio.2 <- sum(idx.label %in% labels.2) / sum(cell.labels %in% labels.2)
+  ratio.diff <- (ratio.2 - ratio.1) / (ratio.2 + ratio.1)
+  
   cell.label.name <- sort(unique(cell.labels))
   cell.label.tab <- table(factor(cell.labels, levels = cell.label.name))
   
-  idx.label <- cell.labels[cell.idx]
   idx.label.ratio <- table(factor(idx.label, levels = cell.label.name)) / cell.label.tab
   # print(idx.label.ratio)
-  score <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1]))
-  score.n <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1])) / sum(idx.label.ratio)
+  # score <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1]))
+  # score.n <- (mean(idx.label.ratio[labels.2]) - mean(idx.label.ratio[labels.1])) / sum(idx.label.ratio)
   
   if(length(labels.1) > 1 & length(labels.2) > 1){
     pval.wilcox <- wilcox.test(x = idx.label.ratio[labels.2], idx.label.ratio[labels.1])$p.value
@@ -212,7 +216,7 @@ getDAscore <- function(cell.labels, cell.idx, labels.1, labels.2){
     pval.ttest <- NA
   }
   
-  return(c("DA.score" = score.n, "pval.wilcoxon" = pval.wilcox, "pval.ttest" = pval.ttest))
+  return(c("DA.score" = ratio.diff, "pval.wilcoxon" = pval.wilcox, "pval.ttest" = pval.ttest))
 }
 
 
