@@ -3,20 +3,39 @@ library(ggplot2)
 library(cowplot)
 library(RColorBrewer)
 library(scales)
-library(diffusionMap)
 library(tclust)
 
 
 
 ## Step1: select cells with DA neighborhood
 
+#' @param X size N-by-p matrix, input merged dataset of interest after dimension reduction
+#' @param cell.labels size N vector, labels for each input cell
+#' @param labels.1 vector, label name(s) that represent condition 1
+#' @param labels.2 vector, label name(s) that represent condition 2
+#' @param k.vector vector, k values to create the score vector
+#' @param ratio maximum ratio of cells to keep, default 0.2
+#' @param i.max maximum iteration to run in the iterative clustering of the score vector, default 10
+#' @param do.diffuse a logical value to indicate whether to calculate diffusion coordinates for X, default False
+#' @param neigen number of diffusion coordinates, default 20
+#' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
+#' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
+#' @param size cell size to use in the plot, default 0.5
+#' 
+#' @return a list of results
+#'         da.ratio: score vector for each cell
+#'         da.cell.idx: cell index with the most DA neighborhood
+#'         da.plot: ggplot object showing the steps of iterative clustering result on plot.embedding
+#'         da.cells.plot: ggplot object highlighting cells of da.cell.idx on plot.embedding
+
 getDAcells <- function(
   X, cell.labels, labels.1, labels.2, k.vector,
   ratio = 0.2, i.max = 10, 
-  do.diffuse = T, neigen = 20, do.plot = T, plot.embedding = NULL, size = 0.5
+  do.diffuse = F, neigen = 20, do.plot = T, plot.embedding = NULL, size = 0.5
 ){
   # get diffusion coordinates
   if(do.diffuse){
+    library(diffusionMap)
     cat("Calculating diffusion coordinates.\n")
     X.input <- X
     X <- diffuse(D = dist(X.input), neigen = neigen)$X
@@ -73,6 +92,23 @@ getDAcells <- function(
 
 ## Step2: get DA regions from DA cells in Step1
 
+#' @param X size N-by-p matrix, input merged dataset of interest after dimension reduction
+#' @param cell.idx result "da.cell.idx" from the output of function getDAcells
+#' @param k number of DA regions to find for cells from function getDAcells
+#' @param alpha estimated ratio of outliers of cells from function getDAcells
+#' @param restr.fact parameter inherited from function "tclust"
+#' @param cell.labels size N vector, labels for each input cell
+#' @param labels.1 vector, label name(s) that represent condition 1
+#' @param labels.2 vector, label name(s) that represent condition 2
+#' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
+#' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
+#' @param size cell size to use in the plot, default 0.5
+#' 
+#' @return a list of results
+#'         cluster.res: DA region number for each cell from cell.idx, '0' represents outlier cells
+#'         DA.stat: a table showing DA score and p-value for each DA region
+#'         da.region.plot: ggplot object showing DA regions (cells in gray are outliers) on plot.embedding
+
 getDAregion <- function(
   X, cell.idx, k, alpha, restr.fact = 50,
   cell.labels, labels.1, labels.2, 
@@ -110,7 +146,8 @@ getDAregion <- function(
 
 
 
-## Useful functions
+##=======================================================##
+## Other functions
 
 # calculate knn.diff.ratio for each cell
 daPerCell <- function(
