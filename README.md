@@ -1,7 +1,7 @@
 # DA-seq (Detecting regions of differential abundance  between scRNA-seq  datasets)
 
 ## Introduction
-DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples, described in the preprint, "Detecting regions of differential abundance between scRNA-Seq datasets" available [here] (http://biorxiv.org/cgi/content/short/711929v1). Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices from different samples (cell states, condition, etc.), DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA areas; then groups these cells into distinct DA regions.
+DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples, described in the preprint, "Detecting regions of differential abundance between scRNA-Seq datasets" available [here](http://biorxiv.org/cgi/content/short/711929v1). Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices from different samples (cell states, condition, etc.), DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA areas; then groups these cells into distinct DA regions.
 
 This repository contains codes for running DA-seq in R.
 
@@ -39,5 +39,5 @@ X.da.regions <- getDAregion(
 ~~~~
 
 
-A comprehensive example of using DA-seq on scRNA-seq data from [Sade-Feldman, Moshe, et al. (Cell. 2018)] (https://www.sciencedirect.com/science/article/pii/S0092867418313941) can be found in `DA-seq_melanoma.R`.
+A comprehensive example of using DA-seq on scRNA-seq data from [Sade-Feldman, Moshe, et al. (Cell. 2018)](https://www.sciencedirect.com/science/article/pii/S0092867418313941) can be found in `DA-seq_melanoma.R`.
 
