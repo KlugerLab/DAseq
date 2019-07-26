@@ -1,7 +1,7 @@
 # DA-seq (Detecting regions of differential abundance  between scRNA-seq  datasets)
 
 ## Introduction
-DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples. Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices, DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA areas; then groups these cells into distinct DA regions.
+DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples, described in the preprint, "Detecting regions of differential abundance between scRNA-Seq datasets" available [here] (http://biorxiv.org/cgi/content/short/711929v1). Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices from different samples (cell states, condition, etc.), DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA areas; then groups these cells into distinct DA regions.
 
 This repository contains codes for running DA-seq in R.
 
@@ -15,15 +15,15 @@ Suggested package: diffusionMap
 ## Usage
 DA-seq can be used as follows:
 
-Let X be a N-by-p matrix of the PCA embeddings of merged scRNA-seq datasets A and B; X.label be a vector of N specifying the original of each cell ('A' or 'B'); X.2d be the 2D embedding of the cells.
+Let X be a N-by-p matrix of the PCA embeddings of merged scRNA-seq datasets A (A1 and A2) and B (B1 and B2); X.label be a vector of N specifying the original of each cell ('A1', 'A2', 'B1', or 'B2'); X.2d be the 2D embedding of the cells.
 
 ~~~~
 X.da.cells <- getDAcells(
   X = X, 
   cell.labels = X.label, 
-  labels.1 = "A", 
-  labels.2 = "B", 
-  k.vector = seq(50,500,10), 
+  labels.1 = c("A1","A2"), 
+  labels.2 = c("B1","B2"), 
+  k.vector = seq(50,500,50), 
   plot.embedding = X.2d
 )
 
@@ -32,8 +32,12 @@ X.da.regions <- getDAregion(
   cell.idx = X.da.cells$da.cell.idx, 
   k = 4, alpha = 0.05, 
   cell.labels = X.label, 
-  labels.1 = "A", 
-  labels.2 = "B", 
+  labels.1 = c("A1","A2"), 
+  labels.2 = c("B1","B2"), 
   plot.embedding = X.2d
 )
 ~~~~
+
+
+A comprehensive example of using DA-seq on scRNA-seq data from [Sade-Feldman, Moshe, et al. (Cell. 2018)] (https://www.sciencedirect.com/science/article/pii/S0092867418313941) can be found in `DA-seq_melanoma.R`.
+
