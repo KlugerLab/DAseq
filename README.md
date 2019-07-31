@@ -17,6 +17,8 @@ DA-seq can be used as follows:
 
 Let X be a N-by-p matrix of the PCA embeddings of merged scRNA-seq datasets A (A1 and A2) and B (B1 and B2); X.label be a vector of N specifying the original of each cell ('A1', 'A2', 'B1', or 'B2'); X.2d be the 2D embedding of the cells.
 
+For marker detection of each DA region, let SeuratObj be a Seurat V2.3.0 ([tutorial](https://satijalab.org/seurat/v2.4/pbmc3k_tutorial.html)) object containing the merged datasets (N cells), after proper preprocessing steps (normalization, scaling, etc.).
+
 ~~~~
 X.da.cells <- getDAcells(
   X = X, 
@@ -35,6 +37,13 @@ X.da.regions <- getDAregion(
   labels.1 = c("A1","A2"), 
   labels.2 = c("B1","B2"), 
   plot.embedding = X.2d
+)
+
+X.da.markers <- findMarkersForDAregion(
+  cell.idx = X.da.cells$da.cell.idx,
+  da.region.label = X.da.regions$cluster.res,
+  obj = SeuratObj,
+  only.pos = T, min.pct = 0.1, min.diff.pct = 0.09
 )
 ~~~~
 

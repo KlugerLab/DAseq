@@ -120,7 +120,9 @@ da_cells$da.cells.plot
 
 # cluster DA cells to get DA regions
 da_regions <- getDAregion(
-  X = pca_embedding, cell.idx = da_cells$da.cell.idx, k = 5, alpha = 0.1, 
+  X = pca_embedding, 
+  cell.idx = da_cells$da.cell.idx, 
+  k = 5, alpha = 0.1, 
   cell.labels = data_S@meta.data$lesion,
   labels.1 = labels_res, 
   labels.2 = labels_nonres, 
@@ -130,23 +132,14 @@ da_regions$da.region.plot
 da_regions$DA.stat
 
 
-
-## Marker detection
-
-# set ident in Seurat
-n.da <- length(unique(da_regions$cluster.res)) - 1
-data_S@meta.data$da <- 0
-data_S@meta.data$da[da_cells$da.cell.idx] <- da_regions$cluster.res
-data_S <- SetAllIdent(data_S, id = "da")
-TSNEPlot(data_S, pt.size = 0.5)
-
-
-# identify markers for each DA region
-da.markers <- list()
-for(i in 1:n.da){
-  da.markers[[i]] <- FindMarkers(data_S, ident.1 = i, only.pos = T, min.pct = 0.1, min.diff.pct = 0.09)
-  da.markers[[i]]$pct.diff <- da.markers[[i]]$pct.1 - da.markers[[i]]$pct.2
-}
+# Marker detection for DA regions
+da_markers <- findMarkersForDAregion(
+  cell.idx = da_cells$da.cell.idx,
+  da.region.label = da_regions$cluster.res,
+  obj = data_S,
+  only.pos = T, min.pct = 0.1, min.diff.pct = 0.09
+)
+str(da_markers)
 
 
 # plot some markers

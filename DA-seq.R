@@ -132,7 +132,7 @@ getDAregion <- function(
     X.region.plot <- plotCellLabel(
       X = plot.embedding[cell.idx,], label = as.factor(X.tclust), 
       size = size, do.label = F, return.plot = T
-    ) + scale_color_manual(values = c("gray",hue_pal()(X.n.da)), breaks = c(1:X.n.da))
+    ) + scale_color_manual(values = c(rgb(255,255,255,max = 255,alpha = 0),hue_pal()(X.n.da)), breaks = c(1:X.n.da))
   } else {
     X.region.plot <- NULL
   }
@@ -143,6 +143,36 @@ getDAregion <- function(
     da.region.plot = X.region.plot
   ))
 }
+
+
+
+## Step 3: detect genes that characterize DA regions from Step 2
+
+#' @param cell.idx result "da.cell.idx" from the output of function getDAcells
+#' @param da.region.label result "cluster.res" from the output of function getDAregion
+#' @param obj Seurat object that contain ALL cells in the analysis
+#' @param ... parameters for Seurat function FindMarkers()
+#' 
+#' @return a list of matrices with markers for each DA region
+
+findMarkersForDAregion <- function(
+  cell.idx, da.region.label, obj, ...
+){
+  n.da <- length(unique(da.region.label)) - 1
+  obj@meta.data$da <- 0
+  obj@meta.data$da[cell.idx] <- da.region.label
+  obj <- SetAllIdent(obj, id = "da")
+  
+  da.markers <- list()
+  for(ii in 1:n.da){
+    da.markers[[ii]] <- FindMarkers(obj, ident.1 = ii, ...)
+    da.markers[[ii]]$pct.diff <- da.markers[[ii]]$pct.1 - da.markers[[ii]]$pct.2
+  }
+  
+  return(da.markers)
+}
+
+
 
 
 
@@ -292,7 +322,7 @@ plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T, r
   # Plot cells with labels
   myggplot <- ggplot() + theme_cowplot() +
     geom_point(data = data.frame(Dim1 = X[,1], Dim2 = X[,2], Group = label, stringsAsFactors = F), 
-               aes(x = Dim1, y = Dim2, col = Group), size = size, alpha = 0.75) + 
+               aes(x = Dim1, y = Dim2, col = Group), size = size) + 
     guides(colour = guide_legend(override.aes = list(size=3), title = NULL))
   
   # Change cell color
