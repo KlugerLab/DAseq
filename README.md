@@ -7,7 +7,7 @@ This repository contains codes for running DA-seq in R.
 
 
 ## Dependencies
-Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales
+Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales, Seurat (V2.3)
 
 Suggested package: diffusionMap
 

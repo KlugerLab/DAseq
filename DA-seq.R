@@ -4,6 +4,7 @@ library(cowplot)
 library(RColorBrewer)
 library(scales)
 library(tclust)
+library(Seurat) # V2.3.0
 
 
 
