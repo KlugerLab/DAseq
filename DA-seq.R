@@ -4,7 +4,7 @@ library(cowplot)
 library(RColorBrewer)
 library(scales)
 library(tclust)
-library(Seurat) # V2.3.0
+library(Seurat)
 
 
 
@@ -113,9 +113,10 @@ getDAcells <- function(
 getDAregion <- function(
   X, cell.idx, k, alpha, restr.fact = 50,
   cell.labels, labels.1, labels.2, 
-  do.plot = T, plot.embedding = NULL, size = 0.5
+  do.plot = T, plot.embedding = NULL, size = 0.5, 
+  ...
 ){
-  X.tclust <- runtclust(X, cell.idx, k, alpha, restr.fact)
+  X.tclust <- runtclust(X, cell.idx, k, alpha, restr.fact, ...)
   X.n.da <- length(unique(X.tclust)) - 1
   X.da.stat <- matrix(0, nrow = X.n.da, ncol = 3)
   colnames(X.da.stat) <- c("DA.score","pval.wilcoxon","pval.ttest")
@@ -152,17 +153,28 @@ getDAregion <- function(
 #' @param cell.idx result "da.cell.idx" from the output of function getDAcells
 #' @param da.region.label result "cluster.res" from the output of function getDAregion
 #' @param obj Seurat object that contain ALL cells in the analysis
+#' @param version Seurat version of 'obj', default is '2', support '2' or '3'
 #' @param ... parameters for Seurat function FindMarkers()
 #' 
 #' @return a list of matrices with markers for each DA region
 
 findMarkersForDAregion <- function(
-  cell.idx, da.region.label, obj, ...
+  cell.idx, da.region.label, obj, version = "2", ...
 ){
+  if(!version %in% c("2","3")){
+    stop("Parameter version can only be '2' or '3'!")
+  }
+  
   n.da <- length(unique(da.region.label)) - 1
   obj@meta.data$da <- 0
   obj@meta.data$da[cell.idx] <- da.region.label
-  obj <- SetAllIdent(obj, id = "da")
+  
+  if(version == "2"){
+    obj <- SetAllIdent(obj, id = "da")
+  } else if (version == "3"){
+    Idents(obj) <- obj@meta.data$da
+  }
+  
   
   da.markers <- list()
   for(ii in 1:n.da){
@@ -248,9 +260,9 @@ removeNeutralCells <- function(X, ratio = 0.2, i.max = 10, keep.info = F){
 
 
 # get DA regions with tclust
-runtclust <- function(X, cell.idx, k, alpha, restr.fact = 50){
+runtclust <- function(X, cell.idx, k, alpha, restr.fact = 50, ...){
   X.tclust.res <- tclust(
-    x = X[cell.idx,], k = k, alpha = alpha, restr.fact = restr.fact
+    x = X[cell.idx,], k = k, alpha = alpha, restr.fact = restr.fact, ...
   )
   
   return(X.tclust.res$cluster)
