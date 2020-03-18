@@ -6,10 +6,15 @@ DA-seq is a method to detect cell subpopulations with differential abundance bet
 This repository contains codes for running DA-seq in R.
 
 
-## Dependencies
+## R Dependencies
 Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales, reticulate
 
 Suggested package: Seurat
+
+## Python Dependencies
+Python 3 or above
+
+Required modules: numpy, pandas, sklearn, tensorflow, keras
 
 
 ## Usage
