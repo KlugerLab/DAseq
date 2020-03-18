@@ -5,7 +5,7 @@ library(cowplot)
 library(RColorBrewer)
 library(scales)
 library(tclust)
-library(Seurat)
+# library(Seurat)
 
 
 
@@ -17,7 +17,7 @@ library(Seurat)
 #' @param labels.2 vector, label name(s) that represent condition 2
 #' @param k.vector vector, k values to create the score vector
 #' @param k.folds integer, number of data splits used in the neural network, default 10
-#' @param n.runs integer, number of times to run the neural network to get the predictions, default 1
+#' @param n.runs integer, number of times to run the neural network to get the predictions, default 10
 #' @param pred.thres length-2 vector, top and bottom threshold on the predictions from the neural network, default c(0.05,0.95)
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
@@ -35,7 +35,7 @@ library(Seurat)
 
 getDAcells <- function(
   X, cell.labels, labels.1, labels.2, k.vector,
-  k.folds = 10, n.runs = 1, pred.thres = c(0.05,0.95),
+  k.folds = 10, n.runs = 10, pred.thres = c(0.05,0.95),
   do.plot = T, plot.embedding = NULL, size = 0.5, 
   python.use = "/usr/bin/python", source.code = "./DA_logit.py", GPU = ""
 ){
@@ -288,7 +288,7 @@ getDAregion <- function(
 STGmarkerFinder <- function(
   X, cell.idx, da.region.label,
   da.regions.to.run = NULL, 
-  lambda = 1, n.runs = 5, return.model = F, 
+  lambda = 1.5, n.runs = 5, return.model = F, 
   python.use = "/usr/bin/python", source.code = "./DA_STG.py", GPU = ""
 ){
   # set Python
