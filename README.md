@@ -7,9 +7,9 @@ This repository contains codes for running DA-seq in R.
 
 
 ## Dependencies
-Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales, Seurat (V2.3)
+Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales, reticulate
 
-Suggested package: diffusionMap
+Suggested package: Seurat
 
 
 ## Usage
@@ -17,7 +17,7 @@ DA-seq can be used as follows:
 
 Let X be a N-by-p matrix of the PCA embeddings of merged scRNA-seq datasets A (A1 and A2) and B (B1 and B2); X.label be a vector of N specifying the original of each cell ('A1', 'A2', 'B1', or 'B2'); X.2d be the 2D embedding of the cells.
 
-For marker detection of each DA region, let SeuratObj be a Seurat V2.3.0 ([tutorial](https://satijalab.org/seurat/v2.4/pbmc3k_tutorial.html)) object containing the merged datasets (N cells), after proper preprocessing steps (normalization, scaling, etc.).
+For marker detection of each DA region, let X.data be the normalized expression matrix containing the merged datasets (N cells).
 
 ~~~~
 X.da.cells <- getDAcells(
@@ -39,11 +39,10 @@ X.da.regions <- getDAregion(
   plot.embedding = X.2d
 )
 
-X.da.markers <- findMarkersForDAregion(
+X.da.markers <- STGmarkerFinder(
+  X = X.data,
   cell.idx = X.da.cells$da.cell.idx,
-  da.region.label = X.da.regions$cluster.res,
-  obj = SeuratObj,
-  only.pos = T, min.pct = 0.1, min.diff.pct = 0.09
+  da.region.label = X.da.regions$cluster.res
 )
 ~~~~
 
