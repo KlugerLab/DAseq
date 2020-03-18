@@ -3,10 +3,25 @@
 
 # Original paper: https://www.sciencedirect.com/science/article/pii/S0092867418313941
 
-library(Seurat) # Seurat version 2.3.0
+library(Seurat)
+library(reshape2)
 
 #! Please set working directory to your local github repo of DA-seq
 source("./DA-seq.R")
+dir.create("./plots/")
+
+
+
+## Set some parameters
+
+# Seurat version, default 2, can also be 3
+Sversion <- 2
+
+# set the python path to use
+python <- "/usr/bin/python"
+
+# set GPU number to use
+GPU <- ""
 
 
 
@@ -61,14 +76,23 @@ lesion_info <- read.table(
 
 
 # Seurat
-data_S <- CreateSeuratObject(
-  raw.data = data_exp, project = "melanoma.immune"
-)
+if(Sversion == 2){
+  data_S <- CreateSeuratObject(
+    raw.data = data_exp, project = "melanoma.immune"
+  )
+} else if(Sversion == 3){
+  data_S <- CreateSeuratObject(
+    counts = data_exp, project = "melanoma.immune"
+  )
+} else {
+  warning("Please set Sversion to 2 or 3!")
+}
 
 
 # set metadata for each cell
-data_S@meta.data$condition <- patient_info[data_S@cell.names, "characteristics..response"]
-data_S@meta.data$lesion <- patient_info[data_S@cell.names, "characteristics..patinet.ID..Pre.baseline..Post..on.treatment."]
+data_S@meta.data$condition <- patient_info[colnames(data_exp), "characteristics..response"]
+data_S@meta.data$lesion <- patient_info[colnames(data_exp), 
+                                        "characteristics..patinet.ID..Pre.baseline..Post..on.treatment."]
 data_S@meta.data$cluster <- cluster_info$Cluster.number
 
 data_S <- ScaleData(data_S)
@@ -76,27 +100,37 @@ data_S <- ScaleData(data_S)
 
 # calculate gene variance to set variable genes
 gene_var <- apply(data_exp, 1, var)
-data_S@var.genes <- names(gene_var)[gene_var > 6]
+if(Sversion == 2){
+  data_S@var.genes <- names(gene_var)[gene_var > 6]
+} else if(Sversion == 3){
+  data_S@assays$RNA@var.features <- names(gene_var)[gene_var > 6]
+} else {
+  warning("Please set Sversion to 2 or 3!")
+}
 
 
 # dimension reduction
-data_S <- RunPCA(data_S, pcs.compute = 10, do.print = F)
-
-data_S <- RunTSNE(data_S, dims.use = 1:10)
-TSNEPlot(data_S, group.by = "condition", pt.size = 0.5)
-TSNEPlot(data_S, group.by = "cluster", do.label = T, pt.size = 0.5)
-
-pca_embedding <- data_S@dr$pca@cell.embeddings
-tsne_embedding <- data_S@dr$tsne@cell.embeddings
+if(Sversion == 2){
+  data_S <- RunPCA(data_S, pcs.compute = 10, do.print = F)
+  data_S <- RunTSNE(data_S, dims.use = 1:10, seed.use = 1)
+  TSNEPlot(data_S, group.by = "condition", pt.size = 0.5)
+  TSNEPlot(data_S, group.by = "cluster", do.label = T, pt.size = 0.5)
+  pca_embedding <- data_S@dr$pca@cell.embeddings
+  tsne_embedding <- data_S@dr$tsne@cell.embeddings
+} else if(Sversion == 3){
+  data_S <- RunPCA(data_S, npcs = 10, assay = "RNA", features = VariableFeatures(data_S), verbose = F)
+  data_S <- RunTSNE(data_S, dims = 1:10, seed.use = 1)
+  TSNEPlot(data_S, group.by = "condition", pt.size = 0.5)
+  TSNEPlot(data_S, group.by = "cluster", label = T, pt.size = 0.5)
+  pca_embedding <- data_S@reductions$pca@cell.embeddings
+  tsne_embedding <- data_S@reductions$tsne@cell.embeddings
+} else {
+  warning("Please set Sversion to 2 or 3!")
+}
 
 
 
 ## DA-seq
-
-# calculate diffusion coordinates
-library(diffusionMap)
-diffuse.res <- diffuse(D = dist(pca_embedding), neigen = 20)
-
 
 # set k values to use
 k.vector <- seq(50, 500, 50)
@@ -109,20 +143,37 @@ labels_nonres <- lesion_info[lesion_info$Response.status..R.responder..NR.non.re
 
 # find top DA cells
 da_cells <- getDAcells(
-  X = diffuse.res$X, do.diffuse = F, 
+  X = pca_embedding, 
   cell.labels = data_S@meta.data$lesion, 
   labels.1 = labels_res, 
   labels.2 = labels_nonres, 
-  k.vector = k.vector, plot.embedding = tsne_embedding
+  k.vector = k.vector, 
+  k.folds = 10, n.runs = 10, pred.thres = c(0.075,0.925), 
+  plot.embedding = tsne_embedding, 
+  python.use = python, 
+  source.code = "./DA_logit.py", GPU = GPU
 )
+
+da_cells <- updateDAcells(
+  X = da_cells, pred.thres = c(0.075,0.925), 
+  do.plot = T, plot.embedding = tsne_embedding
+)
+
+da_cells$pred.plot
 da_cells$da.cells.plot
+
+ggsave(da_cells$pred.plot + xlab("tSNE_1") + ylab("tSNE_2"), 
+       filename = "./plots/melanoma_prediction.pdf", width = 5, height = 4.5)
+ggsave(da_cells$da.cells.plot + xlab("tSNE_1") + ylab("tSNE_2"),
+       filename = "./plots/melanoma_DA_cells.pdf", width = 4.5, height = 4.5)
+
 
 
 # cluster DA cells to get DA regions
 da_regions <- getDAregion(
   X = pca_embedding, 
   cell.idx = da_cells$da.cell.idx, 
-  k = 5, alpha = 0.1, 
+  k = 5, alpha = 0.25, iter.max = 30, 
   cell.labels = data_S@meta.data$lesion,
   labels.1 = labels_res, 
   labels.2 = labels_nonres, 
@@ -131,25 +182,95 @@ da_regions <- getDAregion(
 da_regions$da.region.plot
 da_regions$DA.stat
 
+ggsave(da_regions$da.region.plot + xlab("tSNE_1") + ylab("tSNE_2"),
+       filename = "./plots/melanoma_DA_regions.pdf", width = 5, height = 4.5)
+write.table(da_regions$DA.stat, file = "./plots/melanoma_DA_region_stats.txt", sep = "\t", 
+            col.names = T, row.names = F, quote = F)
 
-# Marker detection for DA regions
-da_markers <- findMarkersForDAregion(
-  cell.idx = da_cells$da.cell.idx,
-  da.region.label = da_regions$cluster.res,
-  obj = data_S,
-  only.pos = T, min.pct = 0.1, min.diff.pct = 0.09
+
+n.da <- length(unique(da_regions$cluster.res)) - 1
+
+
+# STG marker finder for DA regions
+STG.markers <- STGmarkerFinder(
+  X = as.matrix(data_S@data), 
+  cell.idx = da_cells$da.cell.idx, 
+  da.region.label = da_regions$cluster.res, 
+  lambda = 1.5, n.runs = 5,  
+  python.use = "/path/to/your/python", 
+  source.code = "./DA_STG.py"
 )
-str(da_markers)
 
+head(STG.markers$da.markers[["1"]])
+
+
+# get markers as well as the model
+STG.genes.model <- STGmarkerFinder(
+  X = as.matrix(data_S@data), 
+  cell.idx = da_cells$da.cell.idx, 
+  da.region.label = da_regions$cluster.res, 
+  lambda = 1.2, n.runs = 5, return.model = T, 
+  python.use = "/path/to/your/python", 
+  source.code = "./DA_STG.py"
+)
+
+# plot linear predictions from the model for DA region 5
+gg <- plotCellScore(
+  X = tsne_embedding, 
+  score = STG.genes.model$model[["5"]][["pred"]], 
+  cell.col = viridis_pal()(10)
+)
+ggsave(gg + xlab("tSNE_1") + ylab("tSNE_2"), 
+       filename = "./plots/melanoma_DA5_STGlinearPred.pdf", width = 5, height = 4.5)
+
+
+
+## Interpret DA regions
 
 # plot some markers
 marker_genes <- c(
   "CD19","MS4A1","IGHM","CD79A",
-  "CD14","CD33","CSF3R","AIF1",
   "VCAM1","LAG3","CD27","CD38",
-  "CCR7","LEF1","SELL","ACTN1",
-  "IL7R","TCF7","CD8A","CCL5"
+  "CD14","CSF3R","VCAN","LYZ",
+  "IL7R","TCF7","CD8A","CCL5",
+  "CCR7","LEF1","SELL"
 )
-DotPlot(data_S, genes.plot = marker_genes, cols.use = c("gray","red"), group.by = "da", x.lab.rot = T)
+
+# add "da" slot
+data_S@meta.data$da <- 0
+data_S@meta.data$da[da_cells$da.cell.idx] <- da_regions$cluster.res
+
+
+# add STG information
+STG.marker.info <- do.call(rbind, lapply(STG.genes.model$da.markers, function(x,inputgenes){
+  as.numeric(inputgenes %in% x$gene)
+}, inputgenes = rev(marker_genes)))
+STG.marker.info <- rbind(0, STG.marker.info)
+colnames(STG.marker.info) <- rev(marker_genes)
+rownames(STG.marker.info) <- c(1:(n.da+1))
+STG.marker.info[STG.marker.info == 0] <- NA
+
+STG.marker.info.m <- melt(STG.marker.info)
+STG.marker.info.m <- STG.marker.info.m[-which(is.na(STG.marker.info.m$value)),]
+STG.marker.info.m$value <- 10 * STG.marker.info.m$value
+
+
+# create dot plot with Seurat
+if(Sversion == 2){
+  STG.marker.info.m$value <- STG.marker.info.m$value / 100
+  ggdot <- DotPlot(
+    data_S, genes.plot = marker_genes, cols.use = c("gray","red"), group.by = "da", 
+    x.lab.rot = T, do.return = T
+  )
+} else if(Sversion == 3){
+  ggdot <- DotPlot(data_S_new, features = marker_genes, cols = c("gray","red"), group.by = "da") + 
+    RotatedAxis()
+} else {
+  warning("Please set Sversion to 2 or 3!")
+}
+
+gg <- ggdot + geom_point(data = STG.marker.info.m, aes(x = Var2, y = Var1, size = value))
+ggsave(plot = gg, filename = "./plots/melanoma_DotPlot.pdf", width = 10, height = 5)
+
 
 
