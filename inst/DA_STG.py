@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 
 def STG_FS(X_in,Y_in,num_runs=10,lam=1):
-    print(os.environ['CUDA_VISIBLE_DEVICES'])
+#    print(os.environ['CUDA_VISIBLE_DEVICES'])
     X_in = X_in.copy()
     Y_in = Y_in.copy()
     #Comput gene counts and sort top 1000 genes
@@ -24,8 +24,8 @@ def STG_FS(X_in,Y_in,num_runs=10,lam=1):
     y_train=convertToOneHot(y_train.astype(int))
     y_valid=convertToOneHot(y_valid.astype(int))
 
-    print(X_train.shape)
-    print(y_train.shape)
+#    print(X_train.shape)
+#    print(y_train.shape)
     #Define params for NN
     params={}
     params['input_node'] = X_train.shape[1]

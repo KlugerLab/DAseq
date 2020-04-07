@@ -119,7 +119,7 @@ def k_fold_predict(data, labels, k_folds, architecture=[8]*8, activations='relu'
 
 
 
-        print("Finished {} / {} folds.".format(i + 1, k_folds))
+#        print("Finished {} / {} folds.".format(i + 1, k_folds))
 
 
 
