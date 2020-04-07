@@ -5,4 +5,26 @@ DA-seq is a method to detect cell subpopulations with differential abundance bet
 
 This repository contains the DA-seq package.
 
-For more information, please visit our website for DAseq [here](https://klugerlab.github.io/DAseq).
+## R Dependencies
+Required packages: RANN, tclust, ggplot2, cowplot, RColorBrewer, scales, reticulate
+
+Suggested package: Seurat
+
+## Python Dependencies
+Python 3 or above ([Miniconda](https://docs.conda.io/en/latest/miniconda.html) is recommended.)
+
+Required modules: numpy, pandas, sklearn, tensorflow, keras
+
+
+## Installation
+The DAseq package can be installed from this GitHub repository.
+
+~~~~
+devtools::install_github("KlugerLab/DA-seq")
+~~~~
+
+
+## Usage
+Please check DA-seq [tutorial](https://klugerlab.github.io/DAseq/pages/tutorial.html).
+
+Data used in the tutorial is from [Sade-Feldman, Moshe, et al. (Cell. 2018)](https://www.sciencedirect.com/science/article/pii/S0092867418313941).
