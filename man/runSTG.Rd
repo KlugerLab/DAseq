@@ -5,8 +5,7 @@
 \title{Run STG}
 \usage{
 runSTG(X, X.labels, lambda = 1.5, n.runs = 5, return.model = F,
-  python.use = "/usr/bin/python", source.code = "./STG_model.py",
-  GPU = "")
+  python.use = "/usr/bin/python", GPU = "")
 }
 \arguments{
 \item{X}{matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
@@ -22,8 +21,6 @@ a larger lambda leads to fewer genes, default 1.5}
 \item{return.model}{a logical value to indicate whether to return the actual model of STG}
 
 \item{python.use}{character string, the Python to use, default "/usr/bin/python"}
-
-\item{source.code}{character string, the neural network source code, default "./STG_model.py"}
 
 \item{GPU}{which GPU to use, default '', using CPU}
 }

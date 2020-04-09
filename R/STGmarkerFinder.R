@@ -136,7 +136,6 @@ STGmarkerFinder <- function(
 #' a larger lambda leads to fewer genes, default 1.5
 #' @param n.runs integer, number of runs to run the model, default 5
 #' @param python.use character string, the Python to use, default "/usr/bin/python"
-#' @param source.code character string, the neural network source code, default "./STG_model.py"
 #' @param return.model a logical value to indicate whether to return the actual model of STG
 #' @param GPU which GPU to use, default '', using CPU
 #'
@@ -158,11 +157,11 @@ STGmarkerFinder <- function(
 #'
 runSTG <- function(
   X, X.labels, lambda = 1.5, n.runs = 5, return.model = F,
-  python.use = "/usr/bin/python", source.code = "./STG_model.py", GPU = ""
+  python.use = "/usr/bin/python", GPU = ""
 ){
   # set Python
   use_python(python = python.use, required = T)
-  source_python(file = source.code)
+  source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
 
   X.py <- r_to_py(as.matrix(X))
 
