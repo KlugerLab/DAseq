@@ -164,6 +164,7 @@ runSTG <- function(
 ){
   # set Python
   use_python(python = python.use, required = T)
+  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
   source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
 
   if(!is.null(label.2)){
