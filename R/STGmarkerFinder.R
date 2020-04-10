@@ -69,7 +69,7 @@ STGmarkerFinder <- function(
   da.model <- list()
   for(ii in da.regions.to.run){
     # prepare labels
-    da.label.bin <- (da.label == ii)
+    da.label.bin <- as.numeric(da.label == ii)
     da.label.bin.py <- r_to_py(as.matrix(da.label.bin))
     da.label.bin.py <- da.label.bin.py$flatten()
 
@@ -127,11 +127,13 @@ STGmarkerFinder <- function(
 
 #' Run STG
 #'
-#' Run STG to select a set of genes that separate cells with one label from the other label
+#' Run STG to select a set of genes that separate cells with label.1 from label.2 (other labels)
 #'
 #' @param X matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
 #' rownames must be gene names
 #' @param X.labels numeric vector, specify labels for each cell, must be 0 or 1
+#' @param label.1 cell label to define markers for
+#' @param label.2 second cell label to for comparison, if NULL, use all other labels
 #' @param lambda numeric, regularization parameter that weights the number of selected genes,
 #' a larger lambda leads to fewer genes, default 1.5
 #' @param n.runs integer, number of runs to run the model, default 5
@@ -156,16 +158,23 @@ STGmarkerFinder <- function(
 #' @export
 #'
 runSTG <- function(
-  X, X.labels, lambda = 1.5, n.runs = 5, return.model = F,
+  X, X.labels, label.1, label.2 = NULL,
+  lambda = 1.5, n.runs = 5, return.model = F,
   python.use = "/usr/bin/python", GPU = ""
 ){
   # set Python
   use_python(python = python.use, required = T)
   source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
 
+  if(!is.null(label.2)){
+    X.use <- which(X.labels %in% c(label.1,label.2))
+    X <- X[,X.use]
+    X.labels <- X.labels[X.use]
+  }
+
   X.py <- r_to_py(as.matrix(X))
 
-  X.label.bin <- (X.labels == 1)
+  X.label.bin <- as.numeric(X.labels == label.1)
   X.label.bin.py <- r_to_py(as.matrix(X.label.bin))
   X.label.bin.py <- X.label.bin.py$flatten()
 

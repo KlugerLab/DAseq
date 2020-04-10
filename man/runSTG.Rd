@@ -4,14 +4,19 @@
 \alias{runSTG}
 \title{Run STG}
 \usage{
-runSTG(X, X.labels, lambda = 1.5, n.runs = 5, return.model = F,
-  python.use = "/usr/bin/python", GPU = "")
+runSTG(X, X.labels, label.1, label.2 = NULL, lambda = 1.5,
+  n.runs = 5, return.model = F, python.use = "/usr/bin/python",
+  GPU = "")
 }
 \arguments{
 \item{X}{matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
 rownames must be gene names}
 
 \item{X.labels}{numeric vector, specify labels for each cell, must be 0 or 1}
+
+\item{label.1}{cell label to define markers for}
+
+\item{label.2}{second cell label to for comparison, if NULL, use all other labels}
 
 \item{lambda}{numeric, regularization parameter that weights the number of selected genes,
 a larger lambda leads to fewer genes, default 1.5}
@@ -38,5 +43,5 @@ a list of results:
 }
 }
 \description{
-Run STG to select a set of genes that separate cells with one label from the other label
+Run STG to select a set of genes that separate cells with label.1 from label.2 (other labels)
 }
