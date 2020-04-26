@@ -43,10 +43,10 @@ STGmarkerFinder <- function(
   # set Python
   use_python(python = python.use, required = T)
 
+  source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
+
   # set GPU device
   py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
-
-  source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
 
   # turn X into Python format
   X.py <- r_to_py(as.matrix(X))
@@ -164,8 +164,8 @@ runSTG <- function(
 ){
   # set Python
   use_python(python = python.use, required = T)
-  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
   source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))
+  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
 
   if(!is.null(label.2)){
     X.use <- which(X.labels %in% c(label.1,label.2))

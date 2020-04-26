@@ -42,6 +42,7 @@ getDAcells <- function(
   do.plot = T, plot.embedding = NULL, size = 0.5,
   python.use = "/usr/bin/python", GPU = ""
 ){
+#  cat("Using GPU ", GPU, ".\n", sep = "")
 
   # get DA score vector for each cell
   cat("Calculating DA score vector.\n")
@@ -64,15 +65,14 @@ getDAcells <- function(
   binary.labels_py <- r_to_py(as.matrix(binary.labels))
   X.knn.ratio_py <- r_to_py(as.matrix(X.knn.ratio))
 
-
-  # set GPU device
-  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
-
   # get neural network predictions for each cell
   cat("Running logistic regression.\n")
   source_python(file = paste(system.file(package="DAseq"), "DA_logit.py", sep = "/"))
   # py_run_string(paste("epochs = ", epochs, sep = ""))
   py_run_string(paste("k_folds = ", k.folds, sep = ""))
+
+  # set GPU device
+  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
 
 
   # check n.runs
