@@ -10,7 +10,7 @@
   \item{condition}{condition of the sample label, either R or NR}
 }}
 \source{
-\href{https://www.sciencedirect.com/science/article/pii/S0092867418313941}
+\url{https://www.sciencedirect.com/science/article/pii/S0092867418313941}
 {Sade-Feldman, Moshe, et al. (Cell. 2018)}
 }
 \usage{

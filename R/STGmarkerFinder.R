@@ -40,6 +40,9 @@ STGmarkerFinder <- function(
   lambda = 1.2, n.runs = 5, return.model = F,
   python.use = "/usr/bin/python", GPU = ""
 ){
+  if(!inherits(X, what = "matrix") & !inherits(X, what = "Matrix")){
+    X <- as.matrix(X)
+  }
   # set Python
   use_python(python = python.use, required = T)
 
@@ -162,6 +165,9 @@ runSTG <- function(
   lambda = 1.5, n.runs = 5, return.model = F,
   python.use = "/usr/bin/python", GPU = ""
 ){
+  if(!inherits(X, what = "matrix") & !inherits(X, what = "Matrix")){
+    X <- as.matrix(X)
+  }
   # set Python
   use_python(python = python.use, required = T)
   source_python(file = paste(system.file(package="DAseq"), "DA_STG.py", sep = "/"))

@@ -6,7 +6,7 @@
 \title{Top 10 PCs of the melanoma dataset}
 \format{An object of class \code{matrix} with 16291 rows and 10 columns.}
 \source{
-\href{https://www.sciencedirect.com/science/article/pii/S0092867418313941}
+\url{https://www.sciencedirect.com/science/article/pii/S0092867418313941}
 {Sade-Feldman, Moshe, et al. (Cell. 2018)}
 }
 \usage{
