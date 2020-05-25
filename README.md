@@ -20,7 +20,7 @@ Required modules: numpy, pandas, sklearn, tensorflow, keras
 The DAseq package can be installed from this GitHub repository.
 
 ~~~~
-devtools::install_github("KlugerLab/DA-seq")
+devtools::install_github("KlugerLab/DAseq")
 ~~~~
 
 
