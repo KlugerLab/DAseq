@@ -1,6 +1,9 @@
 import numpy as np
-import tensorflow as tf
-# import optuna
+import tensorflow as tfcheck
+if tfcheck.__version__[0] == '2':
+  import tensorflow.compat.v1 as tf
+else:
+  import tensorflow as tf
 import os
 from sklearn.model_selection import train_test_split
 
