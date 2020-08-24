@@ -4,21 +4,23 @@
 \alias{getDAcells}
 \title{DA-seq Step 1 & Step 2: select DA cells}
 \usage{
-getDAcells(X, cell.labels, labels.1, labels.2, k.vector, k.folds = 10,
-  n.runs = 10, pred.thres = c(0.05, 0.95), do.plot = T,
-  plot.embedding = NULL, size = 0.5, python.use = "/usr/bin/python",
-  GPU = "")
+getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
+  save.knn = F, alpha = 0, k.folds = 10, n.runs = 10,
+  pred.thres = c(0.05, 0.95), do.plot = T, plot.embedding = NULL,
+  size = 0.5)
 }
 \arguments{
-\item{X}{size N-by-p matrix, input merged dataset of interest after dimension reduction}
+\item{X}{size N-by-p matrix, input merged dataset of interest after dimension reduction.}
 
-\item{cell.labels}{size N vector, labels for each input cell}
+\item{cell.labels}{size N character vector, labels for each input cell}
 
-\item{labels.1}{vector, label name(s) that represent condition 1}
+\item{labels.1}{character vector, label name(s) that represent condition 1}
 
-\item{labels.2}{vector, label name(s) that represent condition 2}
+\item{labels.2}{character vector, label name(s) that represent condition 2}
 
 \item{k.vector}{vector, k values to create the score vector}
+
+\item{alpha}{numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)}
 
 \item{k.folds}{integer, number of data splits used in the neural network, default 10}
 
@@ -33,17 +35,14 @@ default True}
 \item{plot.embedding}{size N-by-2 matrix, 2D embedding for the cells}
 
 \item{size}{cell size to use in the plot, default 0.5}
-
-\item{python.use}{character string, the Python to use, default "/usr/bin/python"}
-
-\item{GPU}{which GPU to use, default '', using CPU}
 }
 \value{
 a list of results
 \describe{
   \item{da.ratio}{score vector for each cell}
   \item{da.pred}{(mean) prediction from the neural network}
-  \item{da.cell.id}{index for DA cells}
+  \item{da.up}{index for DA cells more abundant in condition of labels.2}
+  \item{da.down}{index for DA cells more abundant in condition of labels.1}
   \item{pred.plot}{ggplot object showing the predictions of logistic regression on plot.embedding}
   \item{da.cells.plot}{ggplot object highlighting cells of da.cell.idx on plot.embedding}
 }

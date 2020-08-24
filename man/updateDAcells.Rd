@@ -4,14 +4,17 @@
 \alias{updateDAcells}
 \title{Update DA cells}
 \usage{
-updateDAcells(X, pred.thres = c(0.05, 0.95), do.plot = T,
-  plot.embedding = NULL, size = 0.5)
+updateDAcells(X, pred.thres = c(0.05, 0.95), alpha = NULL,
+  k.folds = 10, n.runs = 10, cell.labels = NULL, labels.1 = NULL,
+  labels.2 = NULL, do.plot = T, plot.embedding = NULL, size = 0.5)
 }
 \arguments{
 \item{X}{output from getDAcells()}
 
 \item{pred.thres}{length-2 vector, top and bottom threshold on the predictions from the
 logistic classification, default c(0.05,0.95)}
+
+\item{alpha}{set this parameter to not NULL to rerun Logistic regression}
 
 \item{do.plot}{a logical value to indicate whether to return ggplot objects showing the results,
 default True}
@@ -24,5 +27,5 @@ default True}
 a list of results with updated DA cells
 }
 \description{
-Use different threshold to select DA cells based on an output from getDAcells()
+Use different threshold to select DA cells based on an output from getDAcells().
 }

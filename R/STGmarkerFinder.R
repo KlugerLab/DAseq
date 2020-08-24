@@ -6,8 +6,7 @@
 #'
 #' @param X matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
 #' rownames must be gene names
-#' @param cell.idx result "da.cell.idx" from the output of function getDAcells
-#' @param da.region.label result "cluster.res" from the output of function getDAregion
+#' @param da.regions output from the function getDAregion()
 #' @param da.regions.to.run numeric (vector), which DA regions to run the marker finder,
 #' default is to run all regions
 #' @param lambda numeric, regularization parameter that weights the number of selected genes,
@@ -35,7 +34,7 @@
 #' @export
 
 STGmarkerFinder <- function(
-  X, cell.idx, da.region.label,
+  X, da.regions,
   da.regions.to.run = NULL,
   lambda = 1.2, n.runs = 5, return.model = F,
   python.use = "/usr/bin/python", GPU = ""
@@ -55,15 +54,14 @@ STGmarkerFinder <- function(
   X.py <- r_to_py(as.matrix(X))
 
   # get DA regions to run
-  n.da <- length(unique(da.region.label)) - 1
+  n.da <- length(unique(da.regions$da.region.label)) - 1
   if(is.null(da.regions.to.run)){
     da.regions.to.run <- c(1:n.da)
   }
 
   # create DA label vector
   n.cells <- ncol(X)
-  da.label <- rep(0, n.cells)
-  da.label[cell.idx] <- da.region.label
+  da.label <- da.regions$da.region.label
 
 
   # run model for each da region

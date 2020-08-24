@@ -38,7 +38,7 @@
 
 <meta property="og:title" content="DA-seq Step 3: get DA regions — getDAregion" />
 
-<meta property="og:description" content="Cluster the DA cells retained from Step 1 and Step 2 of DA-seq with outlier removal to obtain spatially
+<meta property="og:description" content="Cluster the DA cells retained from Step 1 and Step 2 of DA-seq to obtain spatially
 coherent DA regions." />
 
 
@@ -123,14 +123,13 @@ coherent DA regions." />
 
     <div class="ref-description">
     
-    <p>Cluster the DA cells retained from Step 1 and Step 2 of DA-seq with outlier removal to obtain spatially
+    <p>Cluster the DA cells retained from Step 1 and Step 2 of DA-seq to obtain spatially
 coherent DA regions.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>getDAregion</span>(<span class='no'>X</span>, <span class='no'>cell.idx</span>, <span class='no'>k</span>, <span class='no'>alpha</span>, <span class='kw'>restr.fact</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='no'>cell.labels</span>,
-  <span class='no'>labels.1</span>, <span class='no'>labels.2</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getDAregion</span>(<span class='no'>X</span>, <span class='no'>da.cells</span>, <span class='kw'>resolution</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>,
+  <span class='no'>labels.2</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,20 +139,12 @@ coherent DA regions.</p>
       <td><p>size N-by-p matrix, input merged dataset of interest after dimension reduction</p></td>
     </tr>
     <tr>
-      <th>cell.idx</th>
-      <td><p>result "da.cell.idx" from the output of function getDAcells</p></td>
+      <th>da.cells</th>
+      <td><p>output from getDAcells() or updateDAcells()</p></td>
     </tr>
     <tr>
-      <th>k</th>
-      <td><p>number of DA regions to find for cells from function getDAcells</p></td>
-    </tr>
-    <tr>
-      <th>alpha</th>
-      <td><p>estimated ratio of outliers of cells from function getDAcells</p></td>
-    </tr>
-    <tr>
-      <th>restr.fact</th>
-      <td><p>parameter inherited from function "tclust"</p></td>
+      <th>resolution</th>
+      <td><p>parameter for Seurat function FindClusters(), default 0.05</p></td>
     </tr>
     <tr>
       <th>cell.labels</th>
@@ -181,14 +172,15 @@ coherent DA regions.</p>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>other parameters passed to function tclust</p></td>
+      <td><p>other parameters to pass to Seurat FindClusters()</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a list of results</p><dl'>
-  <dt>cluster.res</dt><dd><p>DA region number for each cell from cell.idx, '0' represents outlier cells</p></dd>
+  <dt>da.region.label</dt><dd><p>DA region label for each cell from the whole dataset,
+  '0' represents non-DA cells.</p></dd>
   <dt>DA.stat</dt><dd><p>a table showing DA score and p-value for each DA region</p></dd>
   <dt>da.region.plot</dt><dd><p>ggplot object showing DA regions on plot.embedding</p></dd>
 

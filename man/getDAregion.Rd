@@ -4,20 +4,15 @@
 \alias{getDAregion}
 \title{DA-seq Step 3: get DA regions}
 \usage{
-getDAregion(X, cell.idx, k, alpha, restr.fact = 50, cell.labels,
-  labels.1, labels.2, do.plot = T, plot.embedding = NULL, size = 0.5,
-  seed = 0, ...)
+getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
+  prune.SNN = 1/15, resolution = 0.05, group.singletons = F,
+  min.cell = 10, do.plot = T, plot.embedding = NULL, size = 0.5,
+  ...)
 }
 \arguments{
 \item{X}{size N-by-p matrix, input merged dataset of interest after dimension reduction}
 
-\item{cell.idx}{result "da.cell.idx" from the output of function getDAcells}
-
-\item{k}{number of DA regions to find for cells from function getDAcells}
-
-\item{alpha}{estimated ratio of outliers of cells from function getDAcells}
-
-\item{restr.fact}{parameter inherited from function "tclust"}
+\item{da.cells}{output from getDAcells() or updateDAcells()}
 
 \item{cell.labels}{size N vector, labels for each input cell}
 
@@ -25,23 +20,32 @@ getDAregion(X, cell.idx, k, alpha, restr.fact = 50, cell.labels,
 
 \item{labels.2}{vector, label name(s) that represent condition 2}
 
+\item{prune.SNN}{parameter for Seurat function FindNeighbors(), default 1/15}
+
+\item{resolution}{parameter for Seurat function FindClusters(), default 0.05}
+
+\item{group.singletons}{parameter for Seurat function FindClusters(), default True}
+
+\item{min.cell}{integer, number of cells below which a DA region will be removed as outliers, default 10}
+
 \item{do.plot}{a logical value to indicate whether to return ggplot objects showing the results, default True}
 
 \item{plot.embedding}{size N-by-2 matrix, 2D embedding for the cells}
 
 \item{size}{cell size to use in the plot, default 0.5}
 
-\item{...}{other parameters passed to function tclust}
+\item{...}{other parameters to pass to Seurat FindClusters()}
 }
 \value{
 a list of results
 \describe{
-  \item{cluster.res}{DA region number for each cell from cell.idx, '0' represents outlier cells}
+  \item{da.region.label}{DA region label for each cell from the whole dataset,
+  '0' represents non-DA cells.}
   \item{DA.stat}{a table showing DA score and p-value for each DA region}
   \item{da.region.plot}{ggplot object showing DA regions on plot.embedding}
 }
 }
 \description{
-Cluster the DA cells retained from Step 1 and Step 2 of DA-seq with outlier removal to obtain spatially
+Cluster the DA cells retained from Step 1 and Step 2 of DA-seq to obtain spatially
 coherent DA regions.
 }

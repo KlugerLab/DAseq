@@ -4,17 +4,15 @@
 \alias{STGmarkerFinder}
 \title{DA-seq Step 4: STG feature selection}
 \usage{
-STGmarkerFinder(X, cell.idx, da.region.label, da.regions.to.run = NULL,
-  lambda = 1.2, n.runs = 5, return.model = F,
-  python.use = "/usr/bin/python", GPU = "")
+STGmarkerFinder(X, da.regions, da.regions.to.run = NULL, lambda = 1.2,
+  n.runs = 5, return.model = F, python.use = "/usr/bin/python",
+  GPU = "")
 }
 \arguments{
 \item{X}{matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
 rownames must be gene names}
 
-\item{cell.idx}{result "da.cell.idx" from the output of function getDAcells}
-
-\item{da.region.label}{result "cluster.res" from the output of function getDAregion}
+\item{da.regions}{output from the function getDAregion()}
 
 \item{da.regions.to.run}{numeric (vector), which DA regions to run the marker finder,
 default is to run all regions}

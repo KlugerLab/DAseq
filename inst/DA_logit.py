@@ -25,7 +25,7 @@ def make_splits(n, k):
         splits[i+1] = splits[i] + splits[i+1]
     return splits[:-1]
 
-def k_fold_predict(data, labels, k_folds, architecture=[8]*8, activations='relu', end_activation='sigmoid'):
+def k_fold_predict(data, labels, k_folds, es_patience=10, architecture=[8]*8, activations='relu', end_activation='sigmoid'):
     # os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     # build layers
 
@@ -113,7 +113,7 @@ def k_fold_predict(data, labels, k_folds, architecture=[8]*8, activations='relu'
 
             validation_data=[x_val_, y_val_],
 
-            callbacks=[EarlyStopping(patience=10)],
+            callbacks=[EarlyStopping(patience=es_patience)],
 
             verbose=0)
 
@@ -135,7 +135,7 @@ def k_fold_predict(data, labels, k_folds, architecture=[8]*8, activations='relu'
 
 
 
-def k_fold_predict_linear(data, labels, k_folds):
-    return k_fold_predict(data, labels, k_folds, architecture=[], activations=None, end_activation='sigmoid')
+def k_fold_predict_linear(data, labels, k_folds, es_patience):
+    return k_fold_predict(data, labels, k_folds, es_patience=es_patience, architecture=[], activations=None, end_activation='sigmoid')
 
 

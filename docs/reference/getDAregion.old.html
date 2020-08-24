@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>DA-seq Step 1 &amp; Step 2: select DA cells — getDAcells • DAseq</title>
+<title>DA-seq Step 3: get DA regions — getDAregion.old • DAseq</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -36,7 +36,10 @@
 
 
 
-<meta property="og:title" content="DA-seq Step 1 &amp; Step 2: select DA cells — getDAcells" />
+<meta property="og:title" content="DA-seq Step 3: get DA regions — getDAregion.old" />
+
+<meta property="og:description" content="Cluster the DA cells retained from Step 1 and Step 2 of DA-seq with outlier removal to obtain spatially
+coherent DA regions." />
 
 
 
@@ -113,69 +116,84 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>DA-seq Step 1 &amp; Step 2: select DA cells</h1>
+    <h1>DA-seq Step 3: get DA regions</h1>
     
-    <div class="hidden name"><code>getDAcells.Rd</code></div>
+    <div class="hidden name"><code>getDAregion.old.Rd</code></div>
     </div>
 
     <div class="ref-description">
-
+    
+    <p>Cluster the DA cells retained from Step 1 and Step 2 of DA-seq with outlier removal to obtain spatially
+coherent DA regions.</p>
+    
     </div>
 
-    <pre class="usage"><span class='fu'>getDAcells</span>(<span class='no'>X</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>, <span class='no'>labels.2</span>, <span class='kw'>k.vector</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>es.patience</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>k.smooth</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>), <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>, <span class='kw'>GPU</span> <span class='kw'>=</span> <span class='st'>""</span>)</pre>
+    <pre class="usage"><span class='fu'>getDAregion.old</span>(<span class='no'>X</span>, <span class='no'>cell.idx</span>, <span class='no'>k</span>, <span class='no'>alpha</span>, <span class='kw'>restr.fact</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='no'>cell.labels</span>,
+  <span class='no'>labels.1</span>, <span class='no'>labels.2</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>X</th>
-      <td><p>size N-by-p matrix, input merged dataset of interest after dimension reduction.</p></td>
+      <td><p>size N-by-p matrix, input merged dataset of interest after dimension reduction</p></td>
+    </tr>
+    <tr>
+      <th>cell.idx</th>
+      <td><p>result "da.cell.idx" from the output of function getDAcells</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>number of DA regions to find for cells from function getDAcells</p></td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td><p>estimated ratio of outliers of cells from function getDAcells</p></td>
+    </tr>
+    <tr>
+      <th>restr.fact</th>
+      <td><p>parameter inherited from function "tclust"</p></td>
     </tr>
     <tr>
       <th>cell.labels</th>
-      <td><p>size N character vector, labels for each input cell</p></td>
+      <td><p>size N vector, labels for each input cell</p></td>
     </tr>
     <tr>
       <th>labels.1</th>
-      <td><p>character vector, label name(s) that represent condition 1</p></td>
+      <td><p>vector, label name(s) that represent condition 1</p></td>
     </tr>
     <tr>
       <th>labels.2</th>
-      <td><p>character vector, label name(s) that represent condition 2</p></td>
+      <td><p>vector, label name(s) that represent condition 2</p></td>
     </tr>
     <tr>
-      <th>k.vector</th>
-      <td><p>vector, k values to create the score vector</p></td>
+      <th>do.plot</th>
+      <td><p>a logical value to indicate whether to return ggplot objects showing the results, default True</p></td>
     </tr>
     <tr>
-      <th>k.folds</th>
-      <td><p>integer, number of data splits used in the neural network, default 10</p></td>
+      <th>plot.embedding</th>
+      <td><p>size N-by-2 matrix, 2D embedding for the cells</p></td>
     </tr>
     <tr>
-      <th>n.runs</th>
-      <td><p>integer, number of times to run the neural network to get the predictions, default 10</p></td>
+      <th>size</th>
+      <td><p>cell size to use in the plot, default 0.5</p></td>
     </tr>
     <tr>
-      <th>es.patience</th>
-      <td><p>integer, patience parameter used in the EarlyStopping procedure, default 10</p></td>
-    </tr>
-    <tr>
-      <th>k.smooth</th>
-      <td><p>integer, number of nearest neighbors used to smooth the prediction scores,
-default 1<!-- % of cells} --></p>
-<p>pred.threslength-2 vector, top and bottom threshold on the predictions from the
-logistic classification, default c(0.05,0.95)</p>
-<p>do.plota logical value to indicate whether to return ggplot objects showing the results,
-default True</p>
-<p>plot.embeddingsize N-by-2 matrix, 2D embedding for the cells</p>
-<p>sizecell size to use in the plot, default 0.5</p>
-<p>python.usecharacter string, the Python to use, default "/usr/bin/python"</p>
-<p>GPUwhich GPU to use, default '', using CPU</p></td>
+      <th>...</th>
+      <td><p>other parameters passed to function tclust</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a list of results</p><dl'>
+  <dt>cluster.res</dt><dd><p>DA region number for each cell from cell.idx, '0' represents outlier cells</p></dd>
+  <dt>DA.stat</dt><dd><p>a table showing DA score and p-value for each DA region</p></dd>
+  <dt>da.region.plot</dt><dd><p>ggplot object showing DA regions on plot.embedding</p></dd>
+
+</dl>
+
     
 
   </div>
