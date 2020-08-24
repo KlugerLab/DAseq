@@ -130,9 +130,9 @@ Feature selection using stochastic gates. arXiv preprint arXiv:1810.04247, 2018.
     
     </div>
 
-    <pre class="usage"><span class='fu'>STGmarkerFinder</span>(<span class='no'>X</span>, <span class='no'>cell.idx</span>, <span class='no'>da.region.label</span>, <span class='kw'>da.regions.to.run</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>return.model</span> <span class='kw'>=</span> <span class='no'>F</span>,
-  <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>, <span class='kw'>GPU</span> <span class='kw'>=</span> <span class='st'>""</span>)</pre>
+    <pre class="usage"><span class='fu'>STGmarkerFinder</span>(<span class='no'>X</span>, <span class='no'>da.regions</span>, <span class='kw'>da.regions.to.run</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>1.2</span>,
+  <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>return.model</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>,
+  <span class='kw'>GPU</span> <span class='kw'>=</span> <span class='st'>""</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -143,12 +143,8 @@ Feature selection using stochastic gates. arXiv preprint arXiv:1810.04247, 2018.
 rownames must be gene names</p></td>
     </tr>
     <tr>
-      <th>cell.idx</th>
-      <td><p>result "da.cell.idx" from the output of function getDAcells</p></td>
-    </tr>
-    <tr>
-      <th>da.region.label</th>
-      <td><p>result "cluster.res" from the output of function getDAregion</p></td>
+      <th>da.regions</th>
+      <td><p>output from the function getDAregion()</p></td>
     </tr>
     <tr>
       <th>da.regions.to.run</th>

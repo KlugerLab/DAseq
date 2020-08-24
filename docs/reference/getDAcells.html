@@ -38,6 +38,11 @@
 
 <meta property="og:title" content="DA-seq Step 1 &amp; Step 2: select DA cells — getDAcells" />
 
+<meta property="og:description" content="Step 1: compute a multiscale score measure for each cell of its k-nearest-neighborhood for
+multiple values of k.
+Step 2: train a logistic regression classifier based on the multiscale score measure and retain cells
+that may reside in DA regions." />
+
 
 
 
@@ -119,13 +124,18 @@
     </div>
 
     <div class="ref-description">
-
+    
+    <p>Step 1: compute a multiscale score measure for each cell of its k-nearest-neighborhood for
+multiple values of k.
+Step 2: train a logistic regression classifier based on the multiscale score measure and retain cells
+that may reside in DA regions.</p>
+    
     </div>
 
     <pre class="usage"><span class='fu'>getDAcells</span>(<span class='no'>X</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>, <span class='no'>labels.2</span>, <span class='kw'>k.vector</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>es.patience</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>k.smooth</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>save.knn</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>), <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>, <span class='kw'>GPU</span> <span class='kw'>=</span> <span class='st'>""</span>)</pre>
+  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,6 +161,10 @@
       <td><p>vector, k values to create the score vector</p></td>
     </tr>
     <tr>
+      <th>alpha</th>
+      <td><p>numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)</p></td>
+    </tr>
+    <tr>
       <th>k.folds</th>
       <td><p>integer, number of data splits used in the neural network, default 10</p></td>
     </tr>
@@ -159,23 +173,37 @@
       <td><p>integer, number of times to run the neural network to get the predictions, default 10</p></td>
     </tr>
     <tr>
-      <th>es.patience</th>
-      <td><p>integer, patience parameter used in the EarlyStopping procedure, default 10</p></td>
+      <th>pred.thres</th>
+      <td><p>length-2 vector, top and bottom threshold on the predictions from the
+logistic classification, default c(0.05,0.95)</p></td>
     </tr>
     <tr>
-      <th>k.smooth</th>
-      <td><p>integer, number of nearest neighbors used to smooth the prediction scores,
-default 1<!-- % of cells} --></p>
-<p>pred.threslength-2 vector, top and bottom threshold on the predictions from the
-logistic classification, default c(0.05,0.95)</p>
-<p>do.plota logical value to indicate whether to return ggplot objects showing the results,
-default True</p>
-<p>plot.embeddingsize N-by-2 matrix, 2D embedding for the cells</p>
-<p>sizecell size to use in the plot, default 0.5</p>
-<p>python.usecharacter string, the Python to use, default "/usr/bin/python"</p>
-<p>GPUwhich GPU to use, default '', using CPU</p></td>
+      <th>do.plot</th>
+      <td><p>a logical value to indicate whether to return ggplot objects showing the results,
+default True</p></td>
+    </tr>
+    <tr>
+      <th>plot.embedding</th>
+      <td><p>size N-by-2 matrix, 2D embedding for the cells</p></td>
+    </tr>
+    <tr>
+      <th>size</th>
+      <td><p>cell size to use in the plot, default 0.5</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a list of results</p><dl'>
+  <dt>da.ratio</dt><dd><p>score vector for each cell</p></dd>
+  <dt>da.pred</dt><dd><p>(mean) prediction from the neural network</p></dd>
+  <dt>da.up</dt><dd><p>index for DA cells more abundant in condition of labels.2</p></dd>
+  <dt>da.down</dt><dd><p>index for DA cells more abundant in condition of labels.1</p></dd>
+  <dt>pred.plot</dt><dd><p>ggplot object showing the predictions of logistic regression on plot.embedding</p></dd>
+  <dt>da.cells.plot</dt><dd><p>ggplot object highlighting cells of da.cell.idx on plot.embedding</p></dd>
+
+</dl>
+
     
 
   </div>

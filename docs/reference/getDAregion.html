@@ -128,8 +128,10 @@ coherent DA regions.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>getDAregion</span>(<span class='no'>X</span>, <span class='no'>da.cells</span>, <span class='kw'>resolution</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>,
-  <span class='no'>labels.2</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getDAregion</span>(<span class='no'>X</span>, <span class='no'>da.cells</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>, <span class='no'>labels.2</span>,
+  <span class='kw'>prune.SNN</span> <span class='kw'>=</span> <span class='fl'>1</span>/<span class='fl'>15</span>, <span class='kw'>resolution</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>group.singletons</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>min.cell</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -143,10 +145,6 @@ coherent DA regions.</p>
       <td><p>output from getDAcells() or updateDAcells()</p></td>
     </tr>
     <tr>
-      <th>resolution</th>
-      <td><p>parameter for Seurat function FindClusters(), default 0.05</p></td>
-    </tr>
-    <tr>
       <th>cell.labels</th>
       <td><p>size N vector, labels for each input cell</p></td>
     </tr>
@@ -157,6 +155,22 @@ coherent DA regions.</p>
     <tr>
       <th>labels.2</th>
       <td><p>vector, label name(s) that represent condition 2</p></td>
+    </tr>
+    <tr>
+      <th>prune.SNN</th>
+      <td><p>parameter for Seurat function FindNeighbors(), default 1/15</p></td>
+    </tr>
+    <tr>
+      <th>resolution</th>
+      <td><p>parameter for Seurat function FindClusters(), default 0.05</p></td>
+    </tr>
+    <tr>
+      <th>group.singletons</th>
+      <td><p>parameter for Seurat function FindClusters(), default True</p></td>
+    </tr>
+    <tr>
+      <th>min.cell</th>
+      <td><p>integer, number of cells below which a DA region will be removed as outliers, default 10</p></td>
     </tr>
     <tr>
       <th>do.plot</th>
