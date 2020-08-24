@@ -30,7 +30,15 @@ plotCellScore <- function(X, score, cell.col = c("blue","white","red"), size = 0
 
 
 
-# Plot da site
+#' Plot da site
+#'
+#' @param X matrix, 2D embedding of each cell for the plot
+#' @param site.list list, a list of cell indices for each site to plot
+#' @param size numeric, dot size for each cell, default 0.5
+#' @param cols string vector, color bar to use for each site, default ggplot default
+#'
+#' @export
+#'
 plotDAsite <- function(X, site.list, size = 0.5, cols = NULL){
   colnames(X) <- c("Dim1","Dim2")
 
@@ -57,8 +65,20 @@ plotDAsite <- function(X, site.list, size = 0.5, cols = NULL){
 
 
 
-# Plot cell labels
-plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T, return.plot = T){
+#' Plot cell labels
+#'
+#' Produce a ggplot object with cells on 2D embedding, colored by given labels of each cell.
+#'
+#' @param X matrix, 2D embedding of each cell for the plot
+#' @param label vector, label for each cell
+#' @param cell.col string vector, color bar to use for cell labels, default ggplot default
+#' @param size numeric, dot size for each cell, default 0.5
+#' @param do.label a logical value indicating whether to add text to mark each cell label
+#'
+#' @return a ggplot object
+#' @export
+#'
+plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T){
   # Add colnames for X
   colnames(X) <- c("Dim1","Dim2")
 
@@ -83,6 +103,6 @@ plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T, r
       annotate("text", x = labeldim1, y = labeldim2, label = as.character(mylabels))
   }
 
-  if(return.plot) {return(myggplot)} else {print(myggplot)}
+  return(myggplot)
 }
 
