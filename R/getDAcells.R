@@ -5,11 +5,12 @@
 #' Step 2: train a logistic regression classifier based on the multiscale score measure and retain cells
 #' that may reside in DA regions.
 #'
-#' @param X size N-by-p matrix, input merged dataset of interest after dimension reduction
-#' @param cell.labels size N vector, labels for each input cell
-#' @param labels.1 vector, label name(s) that represent condition 1
-#' @param labels.2 vector, label name(s) that represent condition 2
+#' @param X size N-by-p matrix, input merged dataset of interest after dimension reduction.
+#' @param cell.labels size N character vector, labels for each input cell
+#' @param labels.1 character vector, label name(s) that represent condition 1
+#' @param labels.2 character vector, label name(s) that represent condition 2
 #' @param k.vector vector, k values to create the score vector
+#' @param alpha numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)
 #' @param k.folds integer, number of data splits used in the neural network, default 10
 #' @param n.runs integer, number of times to run the neural network to get the predictions, default 10
 #' @param pred.thres length-2 vector, top and bottom threshold on the predictions from the
@@ -18,18 +19,17 @@
 #' default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
 #' @param size cell size to use in the plot, default 0.5
-#' @param python.use character string, the Python to use, default "/usr/bin/python"
-# @param source.code character string, the neural network source code, default "./DA_nn.py"
-#' @param GPU which GPU to use, default '', using CPU
 #'
-#' @import reticulate
 #' @import RANN
+#' @importFrom caret createFolds
+#' @import glmnet
 #'
 #' @return a list of results
 #' \describe{
 #'   \item{da.ratio}{score vector for each cell}
 #'   \item{da.pred}{(mean) prediction from the neural network}
-#'   \item{da.cell.id}{index for DA cells}
+#'   \item{da.up}{index for DA cells more abundant in condition of labels.2}
+#'   \item{da.down}{index for DA cells more abundant in condition of labels.1}
 #'   \item{pred.plot}{ggplot object showing the predictions of logistic regression on plot.embedding}
 #'   \item{da.cells.plot}{ggplot object highlighting cells of da.cell.idx on plot.embedding}
 #' }
@@ -37,79 +37,52 @@
 #' @export
 
 getDAcells <- function(
-  X, cell.labels, labels.1, labels.2, k.vector,
-  k.folds = 10, n.runs = 10, pred.thres = c(0.05,0.95),
-  do.plot = T, plot.embedding = NULL, size = 0.5,
-  python.use = "/usr/bin/python", GPU = ""
+  X, cell.labels, labels.1, labels.2, k.vector = NULL, save.knn = F,
+  alpha = 0, k.folds = 10, n.runs = 10, pred.thres = c(0.05,0.95),
+  do.plot = T, plot.embedding = NULL, size = 0.5
 ){
-#  cat("Using GPU ", GPU, ".\n", sep = "")
+  if(!inherits(x = X, what = "matrix")){
+    cat("Turning X to a matrix.\n")
+    X <- as.matrix(X)
+  }
+
+  # check label input
+  if(!inherits(cell.labels, "character") |
+     !inherits(labels.1, "character") | !inherits(labels.2, "character")){
+    stop("Input parameters cell.labels, labels.1 and labels.2 must be character")
+  }
+  if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
+    stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
+  }
+  n.cells <- length(cell.labels)
 
   # get DA score vector for each cell
   cat("Calculating DA score vector.\n")
-  X.knn.ratio <- daPerCell(
+  X.knn.result <- daPerCell(
     X = X,
     cell.labels = cell.labels,
     labels.1 = labels.1,
     labels.2 = labels.2,
     k.vector = k.vector
   )
+  X.knn.ratio <- X.knn.result[["ratio"]]
+  X.knn.graph <- X.knn.result[["graph"]]
 
-
-  # prepare data for python script
-  use_python(python = python.use, required = T)
-
+  # GLM
+  cat("Running GLM.\n")
   binary.labels <- cell.labels
   binary.labels[cell.labels %in% labels.1] <- 0.0
   binary.labels[cell.labels %in% labels.2] <- 1.0
 
-  binary.labels_py <- r_to_py(as.matrix(binary.labels))
-  X.knn.ratio_py <- r_to_py(as.matrix(X.knn.ratio))
-
-  # get neural network predictions for each cell
-  cat("Running logistic regression.\n")
-  source_python(file = paste(system.file(package="DAseq"), "DA_logit.py", sep = "/"))
-  # py_run_string(paste("epochs = ", epochs, sep = ""))
-  py_run_string(paste("k_folds = ", k.folds, sep = ""))
-
-  # set GPU device
-  py_run_string(paste("os.environ['CUDA_VISIBLE_DEVICES'] = '", GPU, "'", sep = ""))
-
-
-  # check n.runs
-  if(n.runs == 1){
-    X.pred <- k_fold_predict_linear(X.knn.ratio_py, binary.labels_py, py$k_folds)
-    # X.pred <- logi_predict(X.knn.ratio_py, binary.labels_py, py$epochs)
-    # if(linear){
-    #   X.pred <- k_fold_predict_linear(X.knn.ratio_py, binary.labels_py, py$k_folds)
-    # } else {
-    #   X.pred <- k_fold_predict(X.knn.ratio_py, binary.labels_py, py$k_folds)
-    # }
-    X.pred <- as.numeric(X.pred)
-    X.std <- NULL
-  } else {
-    cat("Running ", n.runs, " runs.\n", sep = "")
-    X.pred.all <- list()
-    for(ii in 1:n.runs){
-      X.pred.all[[ii]] <- as.numeric(k_fold_predict_linear(X.knn.ratio_py, binary.labels_py, py$k_folds))
-      # X.pred.all[[ii]] <- as.numeric(logi_predict(X.knn.ratio_py, binary.labels_py, py$epochs))
-      # if(linear){
-      #   X.pred.all[[ii]] <- as.numeric(k_fold_predict_linear(X.knn.ratio_py, binary.labels_py, py$k_folds))
-      # } else {
-      #   X.pred.all[[ii]] <- as.numeric(k_fold_predict(X.knn.ratio_py, binary.labels_py, py$k_folds))
-      # }
-    }
-    X.pred.all <- do.call("rbind", X.pred.all)
-    X.pred <- colMeans(X.pred.all)
-    X.std <- apply(X.pred.all, 2, sd)
-  }
-
+  X.pred <- runDAlasso(
+    X = X.knn.ratio, y = factor(binary.labels),
+    k.folds = k.folds, n.runs = n.runs, alpha = alpha
+  )
 
   # select DA cells
   pred.thres <- sort(pred.thres, decreasing = F)
-  X.da.idx <- which(
-    X.pred < quantile(X.pred, pred.thres[1]) | X.pred > quantile(X.pred, pred.thres[2])
-  )
-
+  X.da.up <- which(X.pred > quantile(X.pred, pred.thres[2]))
+  X.da.down <- which(X.pred < quantile(X.pred, pred.thres[1]))
 
   # plot results
   if(do.plot & is.null(plot.embedding)){
@@ -123,8 +96,7 @@ getDAcells <- function(
     X.da.cells.plot <- plotDAsite(
       X = plot.embedding,
       site.list = list(
-        which(X.pred < quantile(X.pred, pred.thres[1])),
-        which(X.pred > quantile(X.pred, pred.thres[2]))
+        X.da.down, X.da.up
       ),
       size = size, cols = c("blue","red")
     )
@@ -134,42 +106,89 @@ getDAcells <- function(
   }
 
   # return result
-  return(list(
-    da.ratio = X.knn.ratio,
-    da.pred = X.pred,
-    #    da.std = X.std,
-    da.cell.idx = X.da.idx,
-    pred.plot = X.pred.plot,
-    da.cells.plot = X.da.cells.plot
-  ))
+  if(save.knn){
+    return(list(
+      knn.graph = X.knn.graph,
+      da.ratio = X.knn.ratio,
+      da.pred = X.pred,
+      da.up = X.da.up,
+      da.down = X.da.down,
+      #    da.std = X.std,
+      #    da.cell.idx = X.da.idx,
+      pred.plot = X.pred.plot,
+      da.cells.plot = X.da.cells.plot
+    ))
+  } else {
+    return(list(
+      da.ratio = X.knn.ratio,
+      da.pred = X.pred,
+      da.up = X.da.up,
+      da.down = X.da.down,
+      #    da.std = X.std,
+      #    da.cell.idx = X.da.idx,
+      pred.plot = X.pred.plot,
+      da.cells.plot = X.da.cells.plot
+    ))
+  }
 }
 
 
 
 #' Update DA cells
 #'
-#' Use different threshold to select DA cells based on an output from getDAcells()
+#' Use different threshold to select DA cells based on an output from getDAcells().
 #'
 #' @param X output from getDAcells()
 #' @param pred.thres length-2 vector, top and bottom threshold on the predictions from the
 #' logistic classification, default c(0.05,0.95)
+#' @param alpha set this parameter to not NULL to rerun Logistic regression
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results,
 #' default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
 #' @param size cell size to use in the plot, default 0.5
+
 #'
 #' @return a list of results with updated DA cells
 #' @export
 
 updateDAcells <- function(
-  X, pred.thres = c(0.05,0.95), do.plot = T, plot.embedding = NULL, size = 0.5
+  X, pred.thres = c(0.05,0.95),
+  alpha = NULL, k.folds = 10, n.runs = 10,
+  cell.labels = NULL, labels.1 = NULL, labels.2 = NULL,
+  do.plot = T, plot.embedding = NULL, size = 0.5
 ){
-  # select DA cells
-  X.pred <- X$da.pred
+  n.cells <- length(X$da.pred)
+
+  if(!is.null(alpha) & (is.null(cell.labels) | is.null(labels.1) | is.null(labels.2))){
+    stop("To update DA cells with new alpha, please also specify cell.labels, labels.1, labels.2.")
+  }
+  if(!is.null(alpha) & (!is.null(cell.labels) & !is.null(labels.1) & !is.null(labels.2))){
+    # check label input
+    if(!inherits(cell.labels, "character") |
+       !inherits(labels.1, "character") | !inherits(labels.2, "character")){
+      stop("Input parameters cell.labels, labels.1 and labels.2 must be character")
+    }
+    if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
+      stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
+    }
+
+    binary.labels <- cell.labels
+    binary.labels[cell.labels %in% labels.1] <- 0.0
+    binary.labels[cell.labels %in% labels.2] <- 1.0
+
+    X.pred <- runDAlasso(
+      X = X$da.ratio, y = factor(binary.labels),
+      k.folds = k.folds, n.runs = n.runs, alpha = alpha
+    )
+  }
+  if(is.null(alpha)){
+    X.pred <- X$da.pred
+  }
+
+  # select DA cells based on new pred.thres
   pred.thres <- sort(pred.thres, decreasing = F)
-  X.da.idx <- which(
-    X.pred < quantile(X.pred, pred.thres[1]) | X.pred > quantile(X.pred, pred.thres[2])
-  )
+  X.da.up <- which(X.pred > quantile(X.pred, pred.thres[2]))
+  X.da.down <- which(X.pred < quantile(X.pred, pred.thres[1]))
 
   # plot results
   if(do.plot & is.null(plot.embedding)){
@@ -183,8 +202,7 @@ updateDAcells <- function(
     X.da.cells.plot <- plotDAsite(
       X = plot.embedding,
       site.list = list(
-        which(X.pred < quantile(X.pred, pred.thres[1])),
-        which(X.pred > quantile(X.pred, pred.thres[2]))
+        X.da.down, X.da.up
       ),
       size = size, cols = c("blue","red")
     )
@@ -194,13 +212,12 @@ updateDAcells <- function(
   }
 
   # return result
-  return(list(
-    da.ratio = X$da.ratio,
-    da.pred = X.pred,
-    da.cell.idx = X.da.idx,
-    pred.plot = X.pred.plot,
-    da.cells.plot = X.da.cells.plot
-  ))
+  X$da.pred <- X.pred
+  X$da.up <- X.da.up
+  X$da.down <- X.da.down
+  X$pred.plot <- X.pred.plot
+  X$da.cells.plot <- X.da.cells.plot
+  return(X)
 }
 
 
@@ -213,29 +230,53 @@ daPerCell <- function(
   knn.graph <- knn.out$nn.idx
 
   n.cells <- length(cell.labels)
-  knn.diff.ratio <- matrix(0, nrow = n.cells, ncol = length(k.vector))
-  colnames(knn.diff.ratio) <- as.character(k.vector)
+  n.k <- length(k.vector)
+  # knn.diff.ratio <- matrix(0, nrow = n.cells, ncol = length(k.vector))
 
   labels.1 <- labels.1[labels.1 %in% cell.labels]
   labels.2 <- labels.2[labels.2 %in% cell.labels]
-
-  cell.label.name <- sort(unique(cell.labels))
-  cell.label.tab <- table(factor(cell.labels, levels = cell.label.name))
+  cell.labels.bin <- cell.labels
+  cell.labels.bin[cell.labels %in% labels.1] <- 0
+  cell.labels.bin[cell.labels %in% labels.2] <- 1
+  cell.labels.bin <- as.numeric(cell.labels.bin)
+  n.label.2 <- sum(cell.labels.bin)
+  n.label.1 <- n.cells - n.label.2
 
   # count labels
-  for(ii in 1:n.cells){
-    for(kk in k.vector){
-      i.kk.label <- cell.labels[knn.graph[ii,1:kk]]
-      i.kk.ratio1 <- sum(i.kk.label %in% labels.1) / sum(cell.labels %in% labels.1)
-      i.kk.ratio2 <- sum(i.kk.label %in% labels.2) / sum(cell.labels %in% labels.2)
-      knn.diff.ratio[ii,as.character(kk)] <- (i.kk.ratio2 - i.kk.ratio1) / (i.kk.ratio2 + i.kk.ratio1)
-      # i.kk.label.ratio <- table(factor(i.kk.label, levels = cell.label.name)) / cell.label.tab
-      # knn.diff.ratio[ii,as.character(kk)] <-
-      #   (mean(i.kk.label.ratio[labels.2]) - mean(i.kk.label.ratio[labels.1])) /
-      #   sum(i.kk.label.ratio)
-      #  (mean(i.kk.label.ratio[labels.2]) + mean(i.kk.label.ratio[labels.1]))
+  knn.diff.ratio <- matrix(unlist(lapply(seq_len(n.cells), function(ii) lapply(k.vector, function(kk){
+    i.kk.label <- cell.labels.bin[knn.graph[ii,1:kk]]
+    i.kk.ratio1 <- (kk - sum(i.kk.label)) / n.label.1
+    i.kk.ratio2 <- sum(i.kk.label) / n.label.2
+    return((i.kk.ratio2 - i.kk.ratio1) / (i.kk.ratio2 + i.kk.ratio1))
+  }))), nrow = n.cells, byrow = T)
+  colnames(knn.diff.ratio) <- as.character(k.vector)
+
+  return(list(
+    "graph" = knn.graph,
+    "ratio" = knn.diff.ratio
+  ))
+}
+
+
+# LASSO regression with CV and multiple runs
+runDAlasso <- function(X, y, k.folds = 10, n.runs = 10, alpha = 0){
+  #X.data <- data.frame(X, response = as.factor(y))
+  n.obs <- length(y)
+  X.pred.all <- list()
+  for(ii in 1:n.runs){
+    set.seed(ii)
+    X.pred.all[[ii]] <- rep(0, n.obs)
+    X.folds <- createFolds(y = y, k = k.folds)
+    for(jj in 1:k.folds){
+      X.glm <- cv.glmnet(x = X[-X.folds[[jj]],], y = y[-X.folds[[jj]]], family = "binomial", alpha = alpha)
+      X.glm.pred <- predict(
+        object = X.glm, newx = X[X.folds[[jj]],], s = "lambda.1se", type = "response"
+      )
+      X.pred.all[[ii]][X.folds[[jj]]] <- X.glm.pred
     }
   }
-
-  return(knn.diff.ratio)
+  X.pred.all <- do.call("rbind", X.pred.all)
+  X.pred <- colMeans(X.pred.all)
+  return(X.pred)
 }
+
