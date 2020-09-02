@@ -5,7 +5,7 @@
 \title{Plot a score for each cell}
 \usage{
 plotCellScore(X, score, cell.col = c("blue", "white", "red"),
-  size = 0.5)
+  size = 0.5, alpha = 1)
 }
 \arguments{
 \item{X}{matrix, 2D embedding of each cell for the plot}
@@ -15,6 +15,8 @@ plotCellScore(X, score, cell.col = c("blue", "white", "red"),
 \item{cell.col}{string vector, color bar to use for "score", defaul c("blue","white","red")}
 
 \item{size}{numeric, dot size for each cell, default 0.5}
+
+\item{alpha}{numeric between 0 to 1, dot opacity for each cell, default 1}
 }
 \value{
 a ggplot object

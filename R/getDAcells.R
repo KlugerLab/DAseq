@@ -10,6 +10,7 @@
 #' @param labels.1 character vector, label name(s) that represent condition 1
 #' @param labels.2 character vector, label name(s) that represent condition 2
 #' @param k.vector vector, k values to create the score vector
+#' @param save.knn a logical value to indicate whether to save computed kNN result, default False
 #' @param alpha numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)
 #' @param k.folds integer, number of data splits used in the neural network, default 10
 #' @param n.runs integer, number of times to run the neural network to get the predictions, default 10
@@ -27,7 +28,7 @@
 #' @return a list of results
 #' \describe{
 #'   \item{da.ratio}{score vector for each cell}
-#'   \item{da.pred}{(mean) prediction from the neural network}
+#'   \item{da.pred}{(mean) prediction from the logistic regression}
 #'   \item{da.up}{index for DA cells more abundant in condition of labels.2}
 #'   \item{da.down}{index for DA cells more abundant in condition of labels.1}
 #'   \item{pred.plot}{ggplot object showing the predictions of logistic regression on plot.embedding}

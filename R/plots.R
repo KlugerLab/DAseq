@@ -11,18 +11,19 @@ NULL
 #' @param score numeric vector, a single value to color each cell, continuous
 #' @param cell.col string vector, color bar to use for "score", defaul c("blue","white","red")
 #' @param size numeric, dot size for each cell, default 0.5
+#' @param alpha numeric between 0 to 1, dot opacity for each cell, default 1
 #'
 #' @return a ggplot object
 #' @export
 #'
-plotCellScore <- function(X, score, cell.col = c("blue","white","red"), size = 0.5){
+plotCellScore <- function(X, score, cell.col = c("blue","white","red"), size = 0.5, alpha = 1){
   # Add colnames for X
   colnames(X) <- c("Dim1","Dim2")
 
   # Plot cells with labels
   myggplot <- ggplot() + theme_cowplot() +
     geom_point(data = data.frame(Dim1 = X[,1], Dim2 = X[,2], Score = score),
-               aes(x = Dim1, y = Dim2, col = Score), size = size) +
+               aes(x = Dim1, y = Dim2, col = Score), size = size, alpha = alpha) +
     scale_color_gradientn(colours = cell.col)
 
   return(myggplot)
@@ -73,20 +74,22 @@ plotDAsite <- function(X, site.list, size = 0.5, cols = NULL){
 #' @param label vector, label for each cell
 #' @param cell.col string vector, color bar to use for cell labels, default ggplot default
 #' @param size numeric, dot size for each cell, default 0.5
+#' @param alpha numeric between 0 to 1, dot opacity for each cell, default 1
 #' @param do.label a logical value indicating whether to add text to mark each cell label
+#' @param label.size numeric, size of text labels, default 4
 #'
 #' @return a ggplot object
 #' @export
 #'
-plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T){
+plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, alpha = 1, do.label = T, label.size = 4){
   # Add colnames for X
   colnames(X) <- c("Dim1","Dim2")
 
   # Plot cells with labels
   myggplot <- ggplot() + theme_cowplot() +
     geom_point(data = data.frame(Dim1 = X[,1], Dim2 = X[,2], Group = label, stringsAsFactors = F),
-               aes(x = Dim1, y = Dim2, col = Group), size = size) +
-    guides(colour = guide_legend(override.aes = list(size=3), title = NULL))
+               aes(x = Dim1, y = Dim2, col = Group), size = size, alpha = alpha) +
+    guides(colour = guide_legend(override.aes = list(size=3,alpha=1), title = NULL))
 
   # Change cell color
   if(!is.null(cell.col)){
@@ -100,7 +103,7 @@ plotCellLabel <- function(X, label, cell.col = NULL, size = 0.5, do.label = T){
     labeldim2 <- by(X[,2], INDICES = label, FUN = median)[mylabels]
 
     myggplot <- myggplot +
-      annotate("text", x = labeldim1, y = labeldim2, label = as.character(mylabels))
+      annotate("text", x = labeldim1, y = labeldim2, label = as.character(mylabels), size = label.size)
   }
 
   return(myggplot)

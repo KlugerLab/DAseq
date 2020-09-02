@@ -4,8 +4,8 @@
 \alias{STGmarkerFinder}
 \title{DA-seq Step 4: STG feature selection}
 \usage{
-STGmarkerFinder(X, da.regions, da.regions.to.run = NULL, lambda = 1.2,
-  n.runs = 5, return.model = F, python.use = "/usr/bin/python",
+STGmarkerFinder(X, da.regions, da.regions.to.run = NULL, lambda = 1.5,
+  n.runs = 5, return.model = T, python.use = "/usr/bin/python",
   GPU = "")
 }
 \arguments{
@@ -18,7 +18,7 @@ rownames must be gene names}
 default is to run all regions}
 
 \item{lambda}{numeric, regularization parameter that weights the number of selected genes,
-a larger lambda leads to fewer genes, default 1.2}
+a larger lambda leads to fewer genes, default 1.5}
 
 \item{n.runs}{integer, number of runs to run the model, default 5}
 

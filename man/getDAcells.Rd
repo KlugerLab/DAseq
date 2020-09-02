@@ -20,6 +20,8 @@ getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
 
 \item{k.vector}{vector, k values to create the score vector}
 
+\item{save.knn}{a logical value to indicate whether to save computed kNN result, default False}
+
 \item{alpha}{numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)}
 
 \item{k.folds}{integer, number of data splits used in the neural network, default 10}
@@ -40,7 +42,7 @@ default True}
 a list of results
 \describe{
   \item{da.ratio}{score vector for each cell}
-  \item{da.pred}{(mean) prediction from the neural network}
+  \item{da.pred}{(mean) prediction from the logistic regression}
   \item{da.up}{index for DA cells more abundant in condition of labels.2}
   \item{da.down}{index for DA cells more abundant in condition of labels.1}
   \item{pred.plot}{ggplot object showing the predictions of logistic regression on plot.embedding}

@@ -4,7 +4,8 @@
 \alias{plotCellLabel}
 \title{Plot cell labels}
 \usage{
-plotCellLabel(X, label, cell.col = NULL, size = 0.5, do.label = T)
+plotCellLabel(X, label, cell.col = NULL, size = 0.5, alpha = 1,
+  do.label = T, label.size = 4)
 }
 \arguments{
 \item{X}{matrix, 2D embedding of each cell for the plot}
@@ -15,7 +16,11 @@ plotCellLabel(X, label, cell.col = NULL, size = 0.5, do.label = T)
 
 \item{size}{numeric, dot size for each cell, default 0.5}
 
+\item{alpha}{numeric between 0 to 1, dot opacity for each cell, default 1}
+
 \item{do.label}{a logical value indicating whether to add text to mark each cell label}
+
+\item{label.size}{numeric, size of text labels, default 4}
 }
 \value{
 a ggplot object
