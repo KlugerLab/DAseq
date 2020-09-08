@@ -5,7 +5,7 @@
 \title{Plot a score for each cell}
 \usage{
 plotCellScore(X, score, cell.col = c("blue", "white", "red"),
-  size = 0.5, alpha = 1)
+  size = 0.5, alpha = 1, shape = 16)
 }
 \arguments{
 \item{X}{matrix, 2D embedding of each cell for the plot}

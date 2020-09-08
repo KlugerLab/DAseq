@@ -5,7 +5,8 @@
 \title{Plot cell labels}
 \usage{
 plotCellLabel(X, label, cell.col = NULL, size = 0.5, alpha = 1,
-  do.label = T, label.size = 4)
+  shape = 16, do.label = T, label.size = 4, label.repel = F,
+  label.plot = NULL)
 }
 \arguments{
 \item{X}{matrix, 2D embedding of each cell for the plot}
@@ -21,6 +22,10 @@ plotCellLabel(X, label, cell.col = NULL, size = 0.5, alpha = 1,
 \item{do.label}{a logical value indicating whether to add text to mark each cell label}
 
 \item{label.size}{numeric, size of text labels, default 4}
+
+\item{label.repel}{a logical value indicating whether to repel the labels to avoid overlapping, default False}
+
+\item{label.plot}{cell labels to add text annotations, default NULL, add text for all labels}
 }
 \value{
 a ggplot object
