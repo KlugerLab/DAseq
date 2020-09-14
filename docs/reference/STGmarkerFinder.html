@@ -73,7 +73,7 @@ Feature selection using stochastic gates. arXiv preprint arXiv:1810.04247, 2018.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DAseq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -130,8 +130,8 @@ Feature selection using stochastic gates. arXiv preprint arXiv:1810.04247, 2018.
     
     </div>
 
-    <pre class="usage"><span class='fu'>STGmarkerFinder</span>(<span class='no'>X</span>, <span class='no'>da.regions</span>, <span class='kw'>da.regions.to.run</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>1.2</span>,
-  <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>return.model</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>,
+    <pre class="usage"><span class='fu'>STGmarkerFinder</span>(<span class='no'>X</span>, <span class='no'>da.regions</span>, <span class='kw'>da.regions.to.run</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
+  <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>return.model</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>python.use</span> <span class='kw'>=</span> <span class='st'>"/usr/bin/python"</span>,
   <span class='kw'>GPU</span> <span class='kw'>=</span> <span class='st'>""</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -154,7 +154,7 @@ default is to run all regions</p></td>
     <tr>
       <th>lambda</th>
       <td><p>numeric, regularization parameter that weights the number of selected genes,
-a larger lambda leads to fewer genes, default 1.2</p></td>
+a larger lambda leads to fewer genes, default 1.5</p></td>
     </tr>
     <tr>
       <th>n.runs</th>

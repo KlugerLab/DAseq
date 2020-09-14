@@ -11,7 +11,7 @@
 #' @param prune.SNN parameter for Seurat function FindNeighbors(), default 1/15
 #' @param resolution parameter for Seurat function FindClusters(), default 0.05
 #' @param group.singletons parameter for Seurat function FindClusters(), default True
-#' @param min.cell integer, number of cells below which a DA region will be removed as outliers, default 10
+#' @param min.cell integer, number of cells below which a DA region will be removed as outliers, default 15
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
 #' @param size cell size to use in the plot, default 0.5
@@ -34,14 +34,26 @@
 getDAregion <- function(
   X, da.cells,
   cell.labels, labels.1, labels.2,
-  prune.SNN = 1/15, resolution = 0.05, group.singletons = F, min.cell = 10,
+  prune.SNN = 1/15, resolution = 0.05, group.singletons = F, min.cell = 15,
   do.plot = T, plot.embedding = NULL, size = 0.5,
   ...
 ){
+  if(!inherits(x = X, what = "matrix")){
+    cat("Turning X to a matrix.\n")
+    X <- as.matrix(X)
+  }
   n.cells <- nrow(X)
   n.dims <- ncol(X)
   if(is.null(rownames(X))){
     rownames(X) <- paste("C",c(1:n.cells), sep = "")
+  }
+  # check label input
+  if(!inherits(cell.labels, "character") |
+     !inherits(labels.1, "character") | !inherits(labels.2, "character")){
+    stop("Input parameters cell.labels, labels.1 and labels.2 must be character")
+  }
+  if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
+    stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
   }
   seurat.version <- substr(packageVersion("Seurat"),1,1)
   if(seurat.version == "3"){

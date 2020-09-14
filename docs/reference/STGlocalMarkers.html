@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • DAseq</title>
+<title>STG local markers
+Run STG to find a set of genes that separate a given DA region from a local subset of cells. — STGlocalMarkers • DAseq</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -36,7 +37,13 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="STG local markers
+Run STG to find a set of genes that separate a given DA region from a local subset of cells. — STGlocalMarkers" />
+
+<meta property="og:description" content="STG local markers
+Run STG to find a set of genes that separate a given DA region from a local subset of cells." />
+
+
 
 
 
@@ -54,7 +61,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -111,18 +118,91 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>STG local markers
+Run STG to find a set of genes that separate a given DA region from a local subset of cells.</h1>
+    
+    <div class="hidden name"><code>STGlocalMarkers.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="tutorial.html">DAseq Tutorial</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    
+    <p>STG local markers
+Run STG to find a set of genes that separate a given DA region from a local subset of cells.</p>
+    
     </div>
+
+    <pre class="usage"><span class='fu'>STGlocalMarkers</span>(<span class='no'>X</span>, <span class='no'>da.regions</span>, <span class='no'>da.region.to.run</span>, <span class='no'>cell.label.info</span>,
+  <span class='no'>cell.label.to.run</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>X</th>
+      <td><p>matrix, normalized expression matrix of all cells in the dataset, genes are in rows,
+rownames must be gene names</p></td>
+    </tr>
+    <tr>
+      <th>da.regions</th>
+      <td><p>output from the function getDAregion()</p></td>
+    </tr>
+    <tr>
+      <th>da.region.to.run</th>
+      <td><p>numeric, which (single) DA region to find local markers for</p></td>
+    </tr>
+    <tr>
+      <th>cell.label.info</th>
+      <td><p>vector, cell labeling information to select the local subset of cells to compare
+with input DA region</p></td>
+    </tr>
+    <tr>
+      <th>cell.label.to.run</th>
+      <td><p>cell label(s) to select from cell.label.info that represent
+the local neiborhood for the input DA region</p></td>
+    </tr>
+    <tr>
+      <th>lambda</th>
+      <td><p>numeric, regularization parameter that weights the number of selected genes,
+a larger lambda leads to fewer genes, default 1.5</p></td>
+    </tr>
+    <tr>
+      <th>n.runs</th>
+      <td><p>integer, number of runs to run the model, default 5</p></td>
+    </tr>
+    <tr>
+      <th>python.use</th>
+      <td><p>character string, the Python to use, default "/usr/bin/python"</p></td>
+    </tr>
+    <tr>
+      <th>return.model</th>
+      <td><p>a logical value to indicate whether to return the actual model of STG</p></td>
+    </tr>
+    <tr>
+      <th>GPU</th>
+      <td><p>which GPU to use, default '', using CPU</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a list of results:</p><dl'>
+  <dt>markers</dt><dd><p>a list of data.frame with markers for each DA region</p></dd>
+  <dt>accuracy</dt><dd><p>a numeric vector showing mean accuracy for each DA region</p></dd>
+  <dt>model</dt><dd><p>a list of model for each DA region, each model contains:
+    <dl'>    <dt>features</dt><dd><p>features used to train the model</p></dd>
+    <dt>selected.features</dt><dd><p>the selected features of the final run</p></dd>
+    <dt>pred</dt><dd><p>the linear prediction value for each cell from the model</p></dd>
+</dl></p></dd>
+
+</dl>
+
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

@@ -57,6 +57,11 @@ getDAcells <- function(
   }
   n.cells <- length(cell.labels)
 
+  # default k-vector
+  if(is.null(k.vector)){
+    k.vector <- round(seq(n.cells*0.0035, n.cells*0.035, length.out = 10))
+  }
+
   # get DA score vector for each cell
   cat("Calculating DA score vector.\n")
   X.knn.result <- daPerCell(

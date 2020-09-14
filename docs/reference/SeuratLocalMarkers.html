@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • DAseq</title>
+<title>Find local markers — SeuratLocalMarkers • DAseq</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -36,7 +36,11 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Find local markers — SeuratLocalMarkers" />
+
+<meta property="og:description" content="Use Seurat FindMarkers() function to identify genes that distinguish a DA region from its local neighborhood" />
+
+
 
 
 
@@ -54,7 +58,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -111,18 +115,60 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Find local markers</h1>
+    
+    <div class="hidden name"><code>SeuratLocalMarkers.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="tutorial.html">DAseq Tutorial</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    
+    <p>Use Seurat FindMarkers() function to identify genes that distinguish a DA region from its local neighborhood</p>
+    
     </div>
+
+    <pre class="usage"><span class='fu'>SeuratLocalMarkers</span>(<span class='no'>object</span>, <span class='kw'>da.slot</span> <span class='kw'>=</span> <span class='st'>"da"</span>, <span class='no'>da.region.to.run</span>,
+  <span class='no'>cell.label.slot</span>, <span class='no'>cell.label.to.run</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>input Seurat object</p></td>
+    </tr>
+    <tr>
+      <th>da.slot</th>
+      <td><p>character, variable name that represents DA regions in Seurat meta.data, default "da"</p></td>
+    </tr>
+    <tr>
+      <th>da.region.to.run</th>
+      <td><p>numeric, which (single) DA region to find local markers for</p></td>
+    </tr>
+    <tr>
+      <th>cell.label.slot</th>
+      <td><p>character, variable name that represents cell labeling information in Seurat meta.data
+to combine with DA information</p></td>
+    </tr>
+    <tr>
+      <th>cell.label.to.run</th>
+      <td><p>cell label(s) that represent the local neiborhood for the input DA region</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>parameters passed to Seurat FindMarkers() function</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a data.frame of markers and statistics</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DAseq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -114,8 +114,8 @@
 ## 5    Pre_P7         R
 ## 6   Post_P7         R</code></pre>
 <p>Now we get the sample label names for R and NR.</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">R_labels</span> <span class="kw">&lt;-</span> <span class="no">X.label.info</span>[<span class="no">X.label.info</span>$<span class="no">condition</span> <span class="kw">==</span> <span class="st">"R"</span>, <span class="st">"label"</span>]
-<span class="no">NR_labels</span> <span class="kw">&lt;-</span> <span class="no">X.label.info</span>[<span class="no">X.label.info</span>$<span class="no">condition</span> <span class="kw">==</span> <span class="st">"NR"</span>, <span class="st">"label"</span>]</pre></body></html></div>
+<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">labels_res</span> <span class="kw">&lt;-</span> <span class="no">X.label.info</span>[<span class="no">X.label.info</span>$<span class="no">condition</span> <span class="kw">==</span> <span class="st">"R"</span>, <span class="st">"label"</span>]
+<span class="no">labels_nonres</span> <span class="kw">&lt;-</span> <span class="no">X.label.info</span>[<span class="no">X.label.info</span>$<span class="no">condition</span> <span class="kw">==</span> <span class="st">"NR"</span>, <span class="st">"label"</span>]</pre></body></html></div>
 </div>
 <div id="get-da-cells" class="section level3">
 <h3 class="hasAnchor">
@@ -140,88 +140,89 @@
 <code>plot.embedding</code>, 2D embedding of the data to visualize the results (t-SNE), this is included in the DAseq package as <code>X.2d.melanoma</code>
 </li>
 </ul>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">da.cells</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getDAcells.html">getDAcells</a></span>(
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">da_cells</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getDAcells.html">getDAcells</a></span>(
   <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.melanoma</span>,
   <span class="kw">cell.labels</span> <span class="kw">=</span> <span class="no">X.label.melanoma</span>,
-  <span class="kw">labels.1</span> <span class="kw">=</span> <span class="no">R_labels</span>, <span class="kw">labels.2</span> <span class="kw">=</span> <span class="no">NR_labels</span>,
-  <span class="kw">k.vector</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fl">50</span>,<span class="fl">500</span>,<span class="fl">50</span>),
-  <span class="kw">plot.embedding</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>,
-  <span class="kw">python.use</span> <span class="kw">=</span> <span class="no">python2use</span>, <span class="kw">GPU</span> <span class="kw">=</span> <span class="no">GPU</span>
+  <span class="kw">labels.1</span> <span class="kw">=</span> <span class="no">labels_res</span>,
+  <span class="kw">labels.2</span> <span class="kw">=</span> <span class="no">labels_nonres</span>,
+  <span class="kw">k.vector</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fl">50</span>, <span class="fl">500</span>, <span class="fl">50</span>),
+  <span class="kw">plot.embedding</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>
 )</pre></body></html></div>
 <p>The output of this step is a list of results:</p>
 <ul>
 <li>
 <code>da.ratio</code>, score vector for each cell</li>
 <li>
-<code>da.pred</code>, prediction values from logistic regression</li>
+<code>da.pred</code>, prediction values from logistic classifier</li>
 <li>
-<code>da.cell.idx</code>, index of DA cells</li>
+<code>da.up</code>, index of DA cells more abundant in <em>labels.2</em> (non-responders)</li>
+<li>
+<code>da.down</code>, index of DA cells more abundant in <em>labels.1</em> (responders)</li>
 </ul>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">da.cells</span>[<span class="fl">1</span>:<span class="fl">3</span>])</pre></body></html></div>
-<pre><code>## List of 3
-##  $ da.ratio   : num [1:16291, 1:10] -0.51756 0.29553 0.00342 -0.20471 -0.38711 ...
+<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">da_cells</span>[<span class="fl">1</span>:<span class="fl">2</span>])</pre></body></html></div>
+<pre><code>## List of 2
+##  $ da.ratio: num [1:16291, 1:10] -0.51756 0.29553 0.00342 -0.20471 -0.38711 ...
 ##   ..- attr(*, "dimnames")=List of 2
 ##   .. ..$ : NULL
 ##   .. ..$ : chr [1:10] "50" "100" "150" "200" ...
-##  $ da.pred    : num [1:16291] 0.219 0.835 0.67 0.434 0.376 ...
-##  $ da.cell.idx: int [1:2444] 6 8 20 21 24 27 28 29 31 34 ...</code></pre>
+##  $ da.pred : num [1:16291] 0.386 0.792 0.679 0.633 0.352 ...</code></pre>
 <p>The prediction values are overlayed on the 2D embedding in the <code>pred.plot</code> slot of the output.</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">da.cells</span>$<span class="no">pred.plot</span></pre></body></html></div>
+<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">da_cells</span>$<span class="no">pred.plot</span></pre></body></html></div>
 <p><img src="tutorial_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
-<p>By default, cells with prediction values in the top and bottom <strong>5%</strong> quantile are selected as DA cells, this can be changed by running <code><a href="../reference/updateDAcells.html">updateDAcells()</a></code>. Here we change it to top and bottom <strong>7.5%</strong> quantile.</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">da.cells</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/updateDAcells.html">updateDAcells</a></span>(
-  <span class="kw">X</span> <span class="kw">=</span> <span class="no">da.cells</span>, <span class="kw">pred.thres</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.075</span>,<span class="fl">0.925</span>),
+<p>By default, cells with prediction values in the top and bottom <strong>5%</strong> quantile are selected as DA cells, this can be changed by running <code><a href="../reference/updateDAcells.html">updateDAcells()</a></code>. In this data, the number of cells from non-responder samples are about twice as responder samples. Here we change it to top <strong>10%</strong> (for non-responder) and bottom <strong>5%</strong> (for responder) quantile.</p>
+<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">da_cells</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/updateDAcells.html">updateDAcells</a></span>(
+  <span class="kw">X</span> <span class="kw">=</span> <span class="no">da_cells</span>, <span class="kw">pred.thres</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.05</span>,<span class="fl">0.9</span>),
   <span class="kw">plot.embedding</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>
 )</pre></body></html></div>
-<p>Selected DA cells are highlighted in the 2D embedding in the <code>da.cells.plot</code> slot. Cells in red are in the top quantile, blue in the bottom.</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">da.cells</span>$<span class="no">da.cells.plot</span></pre></body></html></div>
+<p>Selected DA cells are highlighted in the 2D embedding in the <code>da.cells.plot</code> slot. Cells in red are in the top quantile (these cells are more abundant in non-responder samples), blue in the bottom (these cells are more abundant in responder samples).</p>
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">da_cells</span>$<span class="no">da.cells.plot</span></pre></body></html></div>
 <p><img src="tutorial_files/figure-html/unnamed-chunk-9-1.png" width="432"></p>
 </div>
 <div id="get-da-regions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#get-da-regions" class="anchor"></a>Get DA regions</h3>
-<p>In this step, selected DA cells will be clustered into several DA regions with outlier removal. Several input parameters are identical to that of <code><a href="../reference/getDAcells.html">getDAcells()</a></code>: <code>X, cell.labels, labels.1, labels.2, plot.embedding</code>.</p>
+<p>In this step, selected DA cells will be clustered into several coherent regions, which represent the DA cell subpopulations. Several input parameters are identical to that of <code><a href="../reference/getDAcells.html">getDAcells()</a></code>: <code>X, cell.labels, labels.1, labels.2, plot.embedding</code>.</p>
 <p>Other input includes:</p>
 <ul>
 <li>
-<code>cell.idx</code>: the <code>da.cell.idx</code> slot of the output of <code><a href="../reference/getDAcells.html">getDAcells()</a></code>
+<code>da.cells</code>: the output of <code><a href="../reference/getDAcells.html">getDAcells()</a></code>
 </li>
 <li>
-<code>k</code>: number of clusters, this will be defined by the user, here we use <code>k=5</code>
-</li>
+<code>resolution</code>: clustering parameter, default 0.05, use a larger value to group DA cells into more regions</li>
 <li>
-<code>alpha</code>: the proportions of DA cells to be removed as outliers</li>
+<code>min.cell</code>: minimum number of cells, regions with fewer cells will be removed, default 15</li>
 </ul>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="no">da.regions</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getDAregion.html">getDAregion</a></span>(
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="no">da_regions</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getDAregion.html">getDAregion</a></span>(
   <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.melanoma</span>,
+  <span class="kw">da.cells</span> <span class="kw">=</span> <span class="no">da_cells</span>,
   <span class="kw">cell.labels</span> <span class="kw">=</span> <span class="no">X.label.melanoma</span>,
-  <span class="kw">labels.1</span> <span class="kw">=</span> <span class="no">R_labels</span>, <span class="kw">labels.2</span> <span class="kw">=</span> <span class="no">NR_labels</span>,
-  <span class="kw">cell.idx</span> <span class="kw">=</span> <span class="no">da.cells</span>$<span class="no">da.cell.idx</span>,
-  <span class="kw">k</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.25</span>, <span class="kw">iter.max</span> <span class="kw">=</span> <span class="fl">30</span>,
-  <span class="kw">plot.embedding</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>
+  <span class="kw">labels.1</span> <span class="kw">=</span> <span class="no">labels_res</span>,
+  <span class="kw">labels.2</span> <span class="kw">=</span> <span class="no">labels_nonres</span>,
+  <span class="kw">resolution</span> <span class="kw">=</span> <span class="fl">0.01</span>,
+  <span class="kw">plot.embedding</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>,
 )</pre></body></html></div>
 <p>The output is a list of results:</p>
 <ul>
 <li>
-<code>cluster.res</code>, clustering result of DA cells, 0 means outlier cells</li>
+<code>da.region.label</code>, DA subpopulation labels for all the cells, 0 means non-DA cells</li>
 <li>
-<code>DA.stat</code>, statistics of each DA region</li>
+<code>DA.stat</code>, statistics of each DA subpopulation</li>
 </ul>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">da.regions</span>[<span class="fl">1</span>:<span class="fl">2</span>])</pre></body></html></div>
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">da_regions</span>[<span class="fl">1</span>:<span class="fl">2</span>])</pre></body></html></div>
 <pre><code>## List of 2
-##  $ cluster.res: num [1:2444] 0 0 0 0 0 0 0 0 0 0 ...
-##  $ DA.stat    : num [1:5, 1:3] -0.96 0.991 -0.973 1 -0.941 ...
+##  $ da.region.label: num [1:16291] 0 0 0 0 0 0 0 0 0 0 ...
+##  $ DA.stat        : num [1:5, 1:3] 0.973 0.97 -0.952 -0.981 -0.939 ...
 ##   ..- attr(*, "dimnames")=List of 2
 ##   .. ..$ : NULL
 ##   .. ..$ : chr [1:3] "DA.score" "pval.wilcoxon" "pval.ttest"</code></pre>
 <p>Clustering result is shown in the plot: <code>da.region.plot</code> slot.</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">da.regions</span>$<span class="no">da.region.plot</span></pre></body></html></div>
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">da_regions</span>$<span class="no">da.region.plot</span></pre></body></html></div>
 <p><img src="tutorial_files/figure-html/unnamed-chunk-12-1.png" width="480"></p>
 </div>
-<div id="get-markers-for-each-da-region-with-stg" class="section level3">
+<div id="get-markers-for-each-da-subpopulation-with-stg" class="section level3">
 <h3 class="hasAnchor">
-<a href="#get-markers-for-each-da-region-with-stg" class="anchor"></a>Get markers for each DA region with STG</h3>
-<p>The final step of DAseq is to characterize each DA region by detecting genes that seprate the DA region from the rest of the cells through STG (stochastic gates).</p>
+<a href="#get-markers-for-each-da-subpopulation-with-stg" class="anchor"></a>Get markers for each DA subpopulation with STG</h3>
+<p>The final step of DAseq is to characterize each DA subpopulation by detecting genes that seprate the DA subpopulation from the rest of the cells through STG (stochastic gates).</p>
 <p>The gene expression data is NOT included in the DAseq package and needs to be downloaded. This code will download the data to the current working directory, and load this data into R.</p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>(
   <span class="st">"ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/GSE120575_Sade_Feldman_melanoma_single_cells_TPM_GEO.txt.gz"</span>,
@@ -232,37 +233,36 @@
   <span class="kw">sep</span> <span class="kw">=</span> <span class="st">"\t"</span>, <span class="kw">header</span> <span class="kw">=</span> <span class="no">F</span>, <span class="kw">row.names</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">stringsAsFactors</span> <span class="kw">=</span> <span class="no">F</span>, <span class="kw">skip</span> <span class="kw">=</span> <span class="fl">2</span>
 )
 <span class="no">X.data.melanoma</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">X.data.melanoma</span>[,-<span class="fl">16292</span>])</pre></body></html></div>
-<p>Then, we will use STG to identify markers for each DA region. The input parameters for STG are the normalized gene expression matrix, DA cell index and clustering result of DA cells.</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">da.STG</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/STGmarkerFinder.html">STGmarkerFinder</a></span>(
+<p>Then, we will use STG to identify markers for each DA subpopulation. The input parameters for STG are the normalized gene expression matrix, and the output from the function <code><a href="../reference/getDAregion.html">getDAregion()</a></code>.</p>
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">STG_markers</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/STGmarkerFinder.html">STGmarkerFinder</a></span>(
   <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.data.melanoma</span>,
-  <span class="kw">cell.idx</span> <span class="kw">=</span> <span class="no">da.cells</span>$<span class="no">da.cell.idx</span>,
-  <span class="kw">da.region.label</span> <span class="kw">=</span> <span class="no">da.regions</span>$<span class="no">cluster.res</span>,
-  <span class="kw">return.model</span> <span class="kw">=</span> <span class="no">T</span>,
+  <span class="kw">da.regions</span> <span class="kw">=</span> <span class="no">da_regions</span>,
+  <span class="kw">lambda</span> <span class="kw">=</span> <span class="fl">1.5</span>, <span class="kw">n.runs</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">return.model</span> <span class="kw">=</span> <span class="no">T</span>,
   <span class="kw">python.use</span> <span class="kw">=</span> <span class="no">python2use</span>, <span class="kw">GPU</span> <span class="kw">=</span> <span class="no">GPU</span>
 )</pre></body></html></div>
 <p>The output is a list of results:</p>
 <ul>
 <li>
-<code>da.markers</code>, a list of data frames, each data frame contains markers for each DA region</li>
+<code>da.markers</code>, a list of data frames, each data frame contains markers for each DA subpopulation</li>
 <li>
-<code>accuracy</code>, accuracy of STG for each DA region</li>
+<code>accuracy</code>, accuracy of STG for each DA subpopulation</li>
 <li>
-<code>model</code>, the actual model from STG for each DA region, please refer to the documentation of <code><a href="../reference/STGmarkerFinder.html">STGmarkerFinder()</a></code>
+<code>model</code>, the actual model from STG for each DA subpopulation, please refer to the documentation of <code><a href="../reference/STGmarkerFinder.html">STGmarkerFinder()</a></code>
 </li>
 </ul>
 <p>Top markers for DA region 2 are shown:</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">da.STG</span>$<span class="no">da.markers</span><span class="kw">[[</span><span class="st">"2"</span>]])</pre></body></html></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">STG_markers</span>$<span class="no">da.markers</span><span class="kw">[[</span><span class="st">"1"</span>]])</pre></body></html></div>
 <pre><code>##            gene avg_logFC       p_value
-## VCAM1     VCAM1 2.4366302 7.529967e-218
-## NKG7       NKG7 1.1040795 5.599656e-131
-## PRF1       PRF1 1.2723404 1.248822e-127
-## HAVCR2   HAVCR2 1.4873059 4.146100e-118
-## TNFRSF9 TNFRSF9 1.6964532 4.984804e-106
-## CCL5       CCL5 0.8431577 1.679223e-103</code></pre>
-<p>In the <code>model</code> slot, predictions from STG are available. These predictions are linear combinations of a limited set of genes that best separate the DA region from the rest of the cells.</p>
-<p>For example, here we will plot the prediction value from STG for DA region 5: the <code>pred</code> slot of the 5th list in the <code>model</code> slot of the output.</p>
+## VCAM1     VCAM1  2.378151  0.000000e+00
+## PRF1       PRF1  1.291038 1.192611e-257
+## HAVCR2   HAVCR2  1.513924 1.702221e-247
+## TNFRSF9 TNFRSF9  1.795322 1.622910e-234
+## NKG7       NKG7  1.071042 7.919710e-227
+## CD38       CD38  1.486187 9.654928e-218</code></pre>
+<p>In the <code>model</code> slot, predictions from STG are available. These predictions are linear combinations of a limited set of genes that best separate the DA subpopulation from the rest of the cells.</p>
+<p>For example, here we will plot the prediction value from STG for DA subpopulation 5: the <code>pred</code> slot of the 5th list in the <code>model</code> slot of the output.</p>
 <div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="fu"><a href="../reference/plotCellScore.html">plotCellScore</a></span>(
-  <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>, <span class="kw">score</span> <span class="kw">=</span> <span class="no">da.STG</span>$<span class="no">model</span><span class="kw">[[</span><span class="st">"5"</span>]]$<span class="no">pred</span>
+  <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.2d.melanoma</span>, <span class="kw">score</span> <span class="kw">=</span> <span class="no">STG_markers</span>$<span class="no">model</span><span class="kw">[[</span><span class="st">"5"</span>]]$<span class="no">pred</span>
 )</pre></body></html></div>
 <p><img src="tutorial_files/figure-html/unnamed-chunk-16-1.png" width="480"></p>
 </div>

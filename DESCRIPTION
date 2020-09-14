@@ -1,7 +1,7 @@
 Package: DAseq
 Type: Package
 Title: Detecting regions of differential abundance between scRNA-seq datasets
-Version: 1.0.1
+Version: 1.0.0
 Author: Jun Zhao <jun.zhao@yale.edu>
 Maintainer: Jun Zhao <jun.zhao@yale.edu>
 Description: DA-seq is a multiscale approach for detecting DA subpopulations.
@@ -14,9 +14,13 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Imports: 
-    RANN,
-    ggplot2,
-    cowplot,
-    reticulate,
-    scales,
-    tclust
+    RANN, 
+    glmnet, 
+    caret, 
+    Seurat, 
+    e1071, 
+    reticulate, 
+    ggplot2, 
+    cowplot, 
+    scales, 
+    ggrepel

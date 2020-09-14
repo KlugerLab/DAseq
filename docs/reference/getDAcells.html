@@ -74,7 +74,7 @@ that may reside in DA regions." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">DAseq</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -161,6 +161,10 @@ that may reside in DA regions.</p>
       <td><p>vector, k values to create the score vector</p></td>
     </tr>
     <tr>
+      <th>save.knn</th>
+      <td><p>a logical value to indicate whether to save computed kNN result, default False</p></td>
+    </tr>
+    <tr>
       <th>alpha</th>
       <td><p>numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)</p></td>
     </tr>
@@ -196,7 +200,7 @@ default True</p></td>
 
     <p>a list of results</p><dl'>
   <dt>da.ratio</dt><dd><p>score vector for each cell</p></dd>
-  <dt>da.pred</dt><dd><p>(mean) prediction from the neural network</p></dd>
+  <dt>da.pred</dt><dd><p>(mean) prediction from the logistic regression</p></dd>
   <dt>da.up</dt><dd><p>index for DA cells more abundant in condition of labels.2</p></dd>
   <dt>da.down</dt><dd><p>index for DA cells more abundant in condition of labels.1</p></dd>
   <dt>pred.plot</dt><dd><p>ggplot object showing the predictions of logistic regression on plot.embedding</p></dd>
