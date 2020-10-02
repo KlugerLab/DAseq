@@ -1,7 +1,7 @@
 # DA-seq
 
 ## Introduction
-DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples, described in the preprint, "Detection of differentially abundant cell subpopulations discriminates biological states in scRNA-seq data", preprint available [here](https://www.biorxiv.org/content/10.1101/711929v3). Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices from different samples (biological states, conditions, etc.), DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA neighborhoods; then groups these cells into distinct DA cell subpopulations.
+DA-seq is a method to detect cell subpopulations with differential abundance between single cell RNA-seq (scRNA-seq) datasets from different samples, described in the preprint, "Detection of differentially abundant cell subpopulations discriminates biological states in scRNA-seq data", available [here](https://www.biorxiv.org/content/10.1101/711929v3). Given a low dimensional transformation, for example principal component analysis (PCA), of the merged gene expression matrices from different samples (biological states, conditions, etc.), DA-seq first computes a score vector for each cell to represent the DA behavior in the neighborhood to select cells in the most DA neighborhoods; then groups these cells into distinct DA cell subpopulations.
 
 [This](https://github.com/KlugerLab/DAseq) repository contains the DA-seq package.
 
