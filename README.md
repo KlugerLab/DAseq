@@ -15,7 +15,7 @@ Required modules: numpy, pandas, sklearn, tensorflow, keras
 
 
 ## Installation
-The DAseq package can be installed from this GitHub repository.
+The DAseq package can be installed from this GitHub repository. Installation of just the DAseq package should not take longer than a minute or two.
 
 ```r
 devtools::install_github("KlugerLab/DAseq")
@@ -30,3 +30,5 @@ References of DAseq functions can be found [here](https://klugerlab.github.io/DA
 Please check DA-seq [tutorial](https://klugerlab.github.io/DAseq/articles/tutorial.html).
 
 Data used in the tutorial is from [Sade-Feldman, Moshe, et al. (Cell. 2018)](https://www.sciencedirect.com/science/article/pii/S0092867418313941).
+
+DAseq has been tested on MacOS (Catalina, 10.15) and Ubuntu 16.04. 

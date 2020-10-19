@@ -140,6 +140,7 @@
 <code>plot.embedding</code>, 2D embedding of the data to visualize the results (t-SNE), this is included in the DAseq package as <code>X.2d.melanoma</code>
 </li>
 </ul>
+<p>Runtime for this step with <code>n.runs = 1</code> is less than a minute on a standard laptop, and it will scale linearly with <code>n.runs</code>.</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">da_cells</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getDAcells.html">getDAcells</a></span>(
   <span class="kw">X</span> <span class="kw">=</span> <span class="no">X.melanoma</span>,
   <span class="kw">cell.labels</span> <span class="kw">=</span> <span class="no">X.label.melanoma</span>,
