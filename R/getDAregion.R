@@ -15,6 +15,7 @@
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
 #' @param size cell size to use in the plot, default 0.5
+#' @param do.label a logical value to indicate whether to label each DA region with text, default False
 
 #' @param ... other parameters to pass to Seurat FindClusters()
 #'
@@ -35,7 +36,7 @@ getDAregion <- function(
   X, da.cells,
   cell.labels, labels.1, labels.2,
   prune.SNN = 1/15, resolution = 0.05, group.singletons = F, min.cell = 15,
-  do.plot = T, plot.embedding = NULL, size = 0.5,
+  do.plot = T, plot.embedding = NULL, size = 0.5, do.label = F,
   ...
 ){
   if(!inherits(x = X, what = "matrix")){
@@ -140,7 +141,7 @@ getDAregion <- function(
     X.da.order <- order(X.da.label, decreasing = F)
     X.region.plot <- plotCellLabel(
       X = plot.embedding[X.da.order,], label = as.factor(X.da.label[X.da.order]),
-      size = size, do.label = F
+      size = size, do.label = do.label, label.plot = as.character(c(1:X.n.da))
     ) + scale_color_manual(values = c("gray",hue_pal()(X.n.da)), breaks = c(1:X.n.da))
   } else {
     X.region.plot <- NULL

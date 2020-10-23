@@ -32,6 +32,8 @@ SeuratMarkerFinder <- function(
       output.markers[[as.character(ii)]] <- FindMarkers(
         object, ident.1 = ii, ...
       )
+      output.markers[[as.character(ii)]]$pct.diff <- output.markers[[as.character(ii)]]$pct.1 -
+        output.markers[[as.character(ii)]]$pct.2
     }
   }
 
@@ -101,6 +103,8 @@ SeuratLocalMarkers <- function(
     output.markers <- FindMarkers(
       object, ident.1 = "da", ident.2 = "local", ...
     )
+    output.markers[[as.character(ii)]]$pct.diff <- output.markers[[as.character(ii)]]$pct.1 -
+      output.markers[[as.character(ii)]]$pct.2
   }
   return(output.markers)
 }

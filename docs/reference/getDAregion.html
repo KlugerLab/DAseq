@@ -131,7 +131,7 @@ coherent DA regions.</p>
     <pre class="usage"><span class='fu'>getDAregion</span>(<span class='no'>X</span>, <span class='no'>da.cells</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>, <span class='no'>labels.2</span>,
   <span class='kw'>prune.SNN</span> <span class='kw'>=</span> <span class='fl'>1</span>/<span class='fl'>15</span>, <span class='kw'>resolution</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>group.singletons</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>min.cell</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-  <span class='no'>...</span>)</pre>
+  <span class='kw'>do.label</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -183,6 +183,10 @@ coherent DA regions.</p>
     <tr>
       <th>size</th>
       <td><p>cell size to use in the plot, default 0.5</p></td>
+    </tr>
+    <tr>
+      <th>do.label</th>
+      <td><p>a logical value to indicate whether to label each DA region with text, default False</p></td>
     </tr>
     <tr>
       <th>...</th>

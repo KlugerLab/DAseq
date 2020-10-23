@@ -7,7 +7,7 @@
 getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
   prune.SNN = 1/15, resolution = 0.05, group.singletons = F,
   min.cell = 15, do.plot = T, plot.embedding = NULL, size = 0.5,
-  ...)
+  do.label = F, ...)
 }
 \arguments{
 \item{X}{size N-by-p matrix, input merged dataset of interest after dimension reduction}
@@ -33,6 +33,8 @@ getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
 \item{plot.embedding}{size N-by-2 matrix, 2D embedding for the cells}
 
 \item{size}{cell size to use in the plot, default 0.5}
+
+\item{do.label}{a logical value to indicate whether to label each DA region with text, default False}
 
 \item{...}{other parameters to pass to Seurat FindClusters()}
 }
