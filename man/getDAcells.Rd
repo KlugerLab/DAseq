@@ -5,8 +5,8 @@
 \title{DA-seq Step 1 & Step 2: select DA cells}
 \usage{
 getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
-  save.knn = F, alpha = 0, k.folds = 10, n.runs = 10,
-  pred.thres = c(0.05, 0.95), do.plot = T, plot.embedding = NULL,
+  save.knn = F, alpha = 0, k.folds = 10, n.runs = 5, n.rand = 2,
+  pred.thres = c(-0.8, 0.8), do.plot = T, plot.embedding = NULL,
   size = 0.5)
 }
 \arguments{
@@ -26,10 +26,12 @@ getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
 
 \item{k.folds}{integer, number of data splits used in the neural network, default 10}
 
-\item{n.runs}{integer, number of times to run the neural network to get the predictions, default 10}
+\item{n.runs}{integer, number of times to run the neural network to get the predictions, default 5}
 
-\item{pred.thres}{length-2 vector, top and bottom threshold on the predictions from the
-logistic classification, default c(0.05,0.95)}
+\item{n.rand}{integer, number of random permutations to run, default 5}
+
+\item{pred.thres}{length-2 vector, top and bottom threshold on DA measure,
+default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference}
 
 \item{do.plot}{a logical value to indicate whether to return ggplot objects showing the results,
 default True}

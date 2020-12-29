@@ -13,9 +13,10 @@
 #' @param save.knn a logical value to indicate whether to save computed kNN result, default False
 #' @param alpha numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)
 #' @param k.folds integer, number of data splits used in the neural network, default 10
-#' @param n.runs integer, number of times to run the neural network to get the predictions, default 10
-#' @param pred.thres length-2 vector, top and bottom threshold on the predictions from the
-#' logistic classification, default c(0.05,0.95)
+#' @param n.runs integer, number of times to run the neural network to get the predictions, default 5
+#' @param n.rand integer, number of random permutations to run, default 5
+#' @param pred.thres length-2 vector, top and bottom threshold on DA measure,
+#' default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results,
 #' default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
@@ -39,7 +40,7 @@
 
 getDAcells <- function(
   X, cell.labels, labels.1, labels.2, k.vector = NULL, save.knn = F,
-  alpha = 0, k.folds = 10, n.runs = 10, pred.thres = c(0.05,0.95),
+  alpha = 0, k.folds = 10, n.runs = 5, n.rand = 2, pred.thres = c(-0.8,0.8),
   do.plot = T, plot.embedding = NULL, size = 0.5
 ){
   if(!inherits(x = X, what = "matrix")){
@@ -64,15 +65,18 @@ getDAcells <- function(
 
   # get DA score vector for each cell
   cat("Calculating DA score vector.\n")
-  X.knn.result <- daPerCell(
-    X = X,
+  knn.out <- nn2(data = X, query = X, k = max(k.vector))
+  X.knn.graph <- knn.out$nn.idx
+  X.knn.ratio <- daPerCell(
+    X = X.knn.graph,
     cell.labels = cell.labels,
     labels.1 = labels.1,
     labels.2 = labels.2,
     k.vector = k.vector
   )
-  X.knn.ratio <- X.knn.result[["ratio"]]
-  X.knn.graph <- X.knn.result[["graph"]]
+  # X.knn.ratio <- apply(X.knn.ratio, 2, function(x) orderNorm(x)$x.t)
+  # X.knn.ratio <- X.knn.result[["ratio"]]
+  # X.knn.graph <- X.knn.result[["graph"]]
 
   # GLM
   cat("Running GLM.\n")
@@ -84,13 +88,76 @@ getDAcells <- function(
     X = X.knn.ratio, y = factor(binary.labels),
     k.folds = k.folds, n.runs = n.runs, alpha = alpha
   )
+  X.pred <- balanceP(X.pred, cell.labels = cell.labels, labels.1 = labels.1, labels.2 = labels.2)
+
+  # get DA measure on random labels
+  cat("Test on random labels.\n")
+  n.labels.1 <- length(labels.1)
+  n.labels.2 <- length(labels.2)
+  n.flip <- ceiling(min(n.labels.1/2,n.labels.2/2))
+  X.random.pred <- list()
+  for(ii in 1:n.rand){
+    set.seed(ii)
+    cell.permute.idx <- sample(c(1:n.cells), size = n.cells, replace = F)
+    cell.labels.random <- cell.labels
+    cell.labels.random[cell.permute.idx] <- sample(cell.labels[cell.permute.idx])
+    # cell.labels.random <- sample(cell.labels)
+    # idx.flip.1 <- sample(c(1:n.flip))
+    # idx.flip.2 <- sample(c(1:n.flip))
+    # labels.1.rand <- labels.1
+    # labels.2.rand <- labels.2
+    # labels.1.rand[idx.flip.1] <- labels.2[idx.flip.2]
+    # labels.2.rand[idx.flip.2] <- labels.1[idx.flip.1]
+    X.random.ratio <- daPerCell(
+      X = X.knn.graph,
+      cell.labels = cell.labels.random,
+      labels.1 = labels.1,
+      labels.2 = labels.2,
+      k.vector = k.vector
+    )
+    # X.random.ratio <- apply(X.random.ratio, 2, function(x) orderNorm(x)$x.t)
+    binary.labels <- cell.labels.random
+    binary.labels[cell.labels.random %in% labels.1] <- 0.0
+    binary.labels[cell.labels.random %in% labels.2] <- 1.0
+    # binary.labels <- cell.labels
+    # binary.labels[cell.labels %in% labels.1.rand] <- 0.0
+    # binary.labels[cell.labels %in% labels.2.rand] <- 1.0
+    # print(plotCellLabel(plot.embedding, as.character(binary.labels)))
+    X.random.pred[[ii]] <- runDAlasso(
+      X = X.random.ratio, y = factor(binary.labels),
+      k.folds = k.folds, n.runs = 1, alpha = alpha
+    )
+    X.random.pred[[ii]] <- balanceP(X.random.pred[[ii]], cell.labels = cell.labels, labels.1 = labels.1, labels.2 = labels.2)
+  }
+  X.random.pred.list <- X.random.pred
+  X.random.pred <- unlist(X.random.pred)
 
   # select DA cells
   pred.thres <- sort(pred.thres, decreasing = F)
-  X.da.up <- which(X.pred > quantile(X.pred, pred.thres[2]))
-  X.da.down <- which(X.pred < quantile(X.pred, pred.thres[1]))
+  if(max(X.random.pred) > pred.thres[2]){
+    warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
+    pred.thres[2] <- max(X.random.pred)
+  }
+  if(min(X.random.pred) < pred.thres[1]){
+    warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
+    pred.thres[1] <- min(X.random.pred)
+  }
+  X.da.up <- which(X.pred > pred.thres[2])
+  X.da.down <- which(X.pred < pred.thres[1])
 
   # plot results
+  if(do.plot){
+    X.rand.plot <- ggplot() +
+      geom_point(data = data.frame(
+        order = seq(1,n.cells,length.out = length(X.random.pred)), random = sort(X.random.pred)
+      ), aes(order, random), col = "gray", size = size, alpha = 0.5) +
+      geom_point(data = data.frame(
+        order = c(1:n.cells), da = sort(X.pred)
+      ), aes(order,da), col = "black", size = size, alpha = 0.75) +
+      geom_hline(yintercept = min(X.random.pred), size = size) +
+      geom_hline(yintercept = max(X.random.pred), size = size) +
+      ylim(-1,1) + theme_cowplot() + xlab(element_blank()) + ylab("DA measure")
+  }
   if(do.plot & is.null(plot.embedding)){
     warning("plot.embedding must be provided by user if do.plot = T")
     X.pred.plot <- NULL
@@ -107,6 +174,7 @@ getDAcells <- function(
       size = size, cols = c("blue","red")
     )
   } else {
+    X.rand.plot <- NULL
     X.pred.plot <- NULL
     X.da.cells.plot <- NULL
   }
@@ -117,10 +185,12 @@ getDAcells <- function(
       knn.graph = X.knn.graph,
       da.ratio = X.knn.ratio,
       da.pred = X.pred,
+      rand.pred = X.random.pred.list,
       da.up = X.da.up,
       da.down = X.da.down,
       #    da.std = X.std,
       #    da.cell.idx = X.da.idx,
+      rand.plot = X.rand.plot,
       pred.plot = X.pred.plot,
       da.cells.plot = X.da.cells.plot
     ))
@@ -128,10 +198,12 @@ getDAcells <- function(
     return(list(
       da.ratio = X.knn.ratio,
       da.pred = X.pred,
+      rand.pred = X.random.pred.list,
       da.up = X.da.up,
       da.down = X.da.down,
       #    da.std = X.std,
       #    da.cell.idx = X.da.idx,
+      rand.plot = X.rand.plot,
       pred.plot = X.pred.plot,
       da.cells.plot = X.da.cells.plot
     ))
@@ -145,8 +217,9 @@ getDAcells <- function(
 #' Use different threshold to select DA cells based on an output from getDAcells().
 #'
 #' @param X output from getDAcells()
-#' @param pred.thres length-2 vector, top and bottom threshold on the predictions from the
-#' logistic classification, default c(0.05,0.95)
+#' @param pred.thres length-2 vector, top and bottom threshold on DA measure,
+#' default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference
+#' @param force.thres a logical value to indicate whether to forcefully use pred.thres without considering significance, default False
 #' @param alpha set this parameter to not NULL to rerun Logistic regression
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results,
 #' default True
@@ -158,7 +231,7 @@ getDAcells <- function(
 #' @export
 
 updateDAcells <- function(
-  X, pred.thres = c(0.05,0.95),
+  X, pred.thres = c(-0.8,0.8), force.thres = F,
   alpha = NULL, k.folds = 10, n.runs = 10,
   cell.labels = NULL, labels.1 = NULL, labels.2 = NULL,
   do.plot = T, plot.embedding = NULL, size = 0.5
@@ -186,15 +259,36 @@ updateDAcells <- function(
       X = X$da.ratio, y = factor(binary.labels),
       k.folds = k.folds, n.runs = n.runs, alpha = alpha
     )
+    X.pred <- balanceP(X.pred, cell.labels = cell.labels, labels.1 = labels.1, labels.2 = labels.2)
   }
   if(is.null(alpha)){
     X.pred <- X$da.pred
   }
 
-  # select DA cells based on new pred.thres
+  # select DA cells
+  X.random.pred <- unlist(X$rand.pred)
   pred.thres <- sort(pred.thres, decreasing = F)
-  X.da.up <- which(X.pred > quantile(X.pred, pred.thres[2]))
-  X.da.down <- which(X.pred < quantile(X.pred, pred.thres[1]))
+  if(force.thres){
+    if(max(X.random.pred) > pred.thres[2]){
+      warning("User input top threshold not within significance range: ", format(max(X.random.pred), digits = 3))
+      # pred.thres[2] <- max(X.random.pred)
+    }
+    if(min(X.random.pred) < pred.thres[1]){
+      warning("User input top threshold not within significance range: ", format(min(X.random.pred), digits = 3))
+      # pred.thres[1] <- min(X.random.pred)
+    }
+  } else {
+    if(max(X.random.pred) > pred.thres[2]){
+      warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
+      pred.thres[2] <- max(X.random.pred)
+    }
+    if(min(X.random.pred) < pred.thres[1]){
+      warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
+      pred.thres[1] <- min(X.random.pred)
+    }
+  }
+  X.da.up <- which(X.pred > pred.thres[2])
+  X.da.down <- which(X.pred < pred.thres[1])
 
   # plot results
   if(do.plot & is.null(plot.embedding)){
@@ -227,13 +321,13 @@ updateDAcells <- function(
 }
 
 
-
 # Calculate multiscale score vector for each cell
 daPerCell <- function(
   X, cell.labels, labels.1, labels.2, k.vector
 ){
-  knn.out <- nn2(data = X, query = X, k = max(k.vector))
-  knn.graph <- knn.out$nn.idx
+  # knn.out <- nn2(data = X, query = X, k = max(k.vector))
+  # knn.graph <- knn.out$nn.idx
+  knn.graph <- X
 
   n.cells <- length(cell.labels)
   n.k <- length(k.vector)
@@ -257,10 +351,11 @@ daPerCell <- function(
   }))), nrow = n.cells, byrow = T)
   colnames(knn.diff.ratio) <- as.character(k.vector)
 
-  return(list(
-    "graph" = knn.graph,
-    "ratio" = knn.diff.ratio
-  ))
+  return(knn.diff.ratio)
+  # return(list(
+  #   "graph" = knn.graph,
+  #   "ratio" = knn.diff.ratio
+  # ))
 }
 
 
@@ -284,5 +379,17 @@ runDAlasso <- function(X, y, k.folds = 10, n.runs = 10, alpha = 0){
   X.pred.all <- do.call("rbind", X.pred.all)
   X.pred <- colMeans(X.pred.all)
   return(X.pred)
+}
+
+
+# Transform output from logistic classifier
+balanceP <- function(x, cell.labels, labels.1, labels.2){
+  n.cells <- length(cell.labels)
+  rho.1 <- sum(cell.labels %in% labels.1)/n.cells
+  rho.2 <- sum(cell.labels %in% labels.2)/n.cells
+  f.2 <- x/rho.2
+  f.1 <- (1-x)/rho.1
+  # cat(rho.1,rho.2,f.1,f.2, sep = ", ")
+  return((f.2-f.1)/(f.2+f.1))
 }
 
