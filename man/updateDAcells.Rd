@@ -4,16 +4,15 @@
 \alias{updateDAcells}
 \title{Update DA cells}
 \usage{
-updateDAcells(X, pred.thres = c(-0.8, 0.8), force.thres = F,
-  alpha = NULL, k.folds = 10, n.runs = 10, cell.labels = NULL,
-  labels.1 = NULL, labels.2 = NULL, do.plot = T,
-  plot.embedding = NULL, size = 0.5)
+updateDAcells(X, pred.thres = NULL, force.thres = F, alpha = NULL,
+  k.folds = 10, n.runs = 10, cell.labels = NULL, labels.1 = NULL,
+  labels.2 = NULL, do.plot = T, plot.embedding = NULL, size = 0.5)
 }
 \arguments{
 \item{X}{output from getDAcells()}
 
 \item{pred.thres}{length-2 vector, top and bottom threshold on DA measure,
-default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference}
+default NULL, select significant DA cells based on permutation}
 
 \item{force.thres}{a logical value to indicate whether to forcefully use pred.thres without considering significance, default False}
 

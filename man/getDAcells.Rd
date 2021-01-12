@@ -6,7 +6,7 @@
 \usage{
 getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
   save.knn = F, alpha = 0, k.folds = 10, n.runs = 5, n.rand = 2,
-  pred.thres = c(-0.8, 0.8), do.plot = T, plot.embedding = NULL,
+  pred.thres = NULL, do.plot = T, plot.embedding = NULL,
   size = 0.5)
 }
 \arguments{
@@ -28,10 +28,10 @@ getDAcells(X, cell.labels, labels.1, labels.2, k.vector = NULL,
 
 \item{n.runs}{integer, number of times to run the neural network to get the predictions, default 5}
 
-\item{n.rand}{integer, number of random permutations to run, default 5}
+\item{n.rand}{integer, number of random permutations to run, default 2}
 
 \item{pred.thres}{length-2 vector, top and bottom threshold on DA measure,
-default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference}
+default NULL, select significant DA cells based on permutation}
 
 \item{do.plot}{a logical value to indicate whether to return ggplot objects showing the results,
 default True}

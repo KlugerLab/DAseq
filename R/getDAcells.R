@@ -14,9 +14,9 @@
 #' @param alpha numeric, elasticnet mixing parameter passed to glmnet(), default 0 (Ridge)
 #' @param k.folds integer, number of data splits used in the neural network, default 10
 #' @param n.runs integer, number of times to run the neural network to get the predictions, default 5
-#' @param n.rand integer, number of random permutations to run, default 5
+#' @param n.rand integer, number of random permutations to run, default 2
 #' @param pred.thres length-2 vector, top and bottom threshold on DA measure,
-#' default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference
+#' default NULL, select significant DA cells based on permutation
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results,
 #' default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
@@ -40,7 +40,7 @@
 
 getDAcells <- function(
   X, cell.labels, labels.1, labels.2, k.vector = NULL, save.knn = F,
-  alpha = 0, k.folds = 10, n.runs = 5, n.rand = 2, pred.thres = c(-0.8,0.8),
+  alpha = 0, k.folds = 10, n.runs = 5, n.rand = 2, pred.thres = NULL,
   do.plot = T, plot.embedding = NULL, size = 0.5
 ){
   if(!inherits(x = X, what = "matrix")){
@@ -133,14 +133,19 @@ getDAcells <- function(
   X.random.pred <- unlist(X.random.pred)
 
   # select DA cells
-  pred.thres <- sort(pred.thres, decreasing = F)
-  if(max(X.random.pred) > pred.thres[2]){
-    warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
-    pred.thres[2] <- max(X.random.pred)
-  }
-  if(min(X.random.pred) < pred.thres[1]){
-    warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
-    pred.thres[1] <- min(X.random.pred)
+  if(is.null(pred.thres)){
+    cat("Setting thresholds based on permutation\n")
+    pred.thres <- c(min(X.random.pred),max(X.random.pred))
+  } else {
+    pred.thres <- sort(pred.thres, decreasing = F)
+    if(max(X.random.pred) > pred.thres[2]){
+      warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
+      pred.thres[2] <- max(X.random.pred)
+    }
+    if(min(X.random.pred) < pred.thres[1]){
+      warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
+      pred.thres[1] <- min(X.random.pred)
+    }
   }
   X.da.up <- which(X.pred > pred.thres[2])
   X.da.down <- which(X.pred < pred.thres[1])
@@ -218,7 +223,7 @@ getDAcells <- function(
 #'
 #' @param X output from getDAcells()
 #' @param pred.thres length-2 vector, top and bottom threshold on DA measure,
-#' default (-0.8,0.8), select significant DA cells with at least 9:1 abundance difference
+#' default NULL, select significant DA cells based on permutation
 #' @param force.thres a logical value to indicate whether to forcefully use pred.thres without considering significance, default False
 #' @param alpha set this parameter to not NULL to rerun Logistic regression
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results,
@@ -231,7 +236,7 @@ getDAcells <- function(
 #' @export
 
 updateDAcells <- function(
-  X, pred.thres = c(-0.8,0.8), force.thres = F,
+  X, pred.thres = NULL, force.thres = F,
   alpha = NULL, k.folds = 10, n.runs = 10,
   cell.labels = NULL, labels.1 = NULL, labels.2 = NULL,
   do.plot = T, plot.embedding = NULL, size = 0.5
@@ -267,24 +272,29 @@ updateDAcells <- function(
 
   # select DA cells
   X.random.pred <- unlist(X$rand.pred)
-  pred.thres <- sort(pred.thres, decreasing = F)
-  if(force.thres){
-    if(max(X.random.pred) > pred.thres[2]){
-      warning("User input top threshold not within significance range: ", format(max(X.random.pred), digits = 3))
-      # pred.thres[2] <- max(X.random.pred)
-    }
-    if(min(X.random.pred) < pred.thres[1]){
-      warning("User input top threshold not within significance range: ", format(min(X.random.pred), digits = 3))
-      # pred.thres[1] <- min(X.random.pred)
-    }
+  if(is.null(pred.thres)){
+    cat("Setting thresholds based on permutation\n")
+    pred.thres <- c(min(X.random.pred),max(X.random.pred))
   } else {
-    if(max(X.random.pred) > pred.thres[2]){
-      warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
-      pred.thres[2] <- max(X.random.pred)
-    }
-    if(min(X.random.pred) < pred.thres[1]){
-      warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
-      pred.thres[1] <- min(X.random.pred)
+    pred.thres <- sort(pred.thres, decreasing = F)
+    if(force.thres){
+      if(max(X.random.pred) > pred.thres[2]){
+        warning("User input top threshold not within significance range: ", format(max(X.random.pred), digits = 3))
+        # pred.thres[2] <- max(X.random.pred)
+      }
+      if(min(X.random.pred) < pred.thres[1]){
+        warning("User input top threshold not within significance range: ", format(min(X.random.pred), digits = 3))
+        # pred.thres[1] <- min(X.random.pred)
+      }
+    } else {
+      if(max(X.random.pred) > pred.thres[2]){
+        warning("User input top threshold not within significance range, updating top threshold to ", format(max(X.random.pred), digits = 3))
+        pred.thres[2] <- max(X.random.pred)
+      }
+      if(min(X.random.pred) < pred.thres[1]){
+        warning("User input bottom threshold not within significance range, updating bottom threshold to ", format(min(X.random.pred), digits = 3))
+        pred.thres[1] <- min(X.random.pred)
+      }
     }
   }
   X.da.up <- which(X.pred > pred.thres[2])

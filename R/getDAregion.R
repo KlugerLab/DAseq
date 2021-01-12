@@ -11,7 +11,7 @@
 #' @param prune.SNN parameter for Seurat function FindNeighbors(), default 1/15
 #' @param resolution parameter for Seurat function FindClusters(), default 0.05
 #' @param group.singletons parameter for Seurat function FindClusters(), default True
-#' @param min.cell integer, number of cells below which a DA region will be removed as outliers, default 15
+#' @param min.cell integer, number of cells below which a DA region will be removed as outliers, default NULL, use minimum k value in k-vector
 #' @param do.plot a logical value to indicate whether to return ggplot objects showing the results, default True
 #' @param plot.embedding size N-by-2 matrix, 2D embedding for the cells
 #' @param size cell size to use in the plot, default 0.5
@@ -35,7 +35,7 @@
 getDAregion <- function(
   X, da.cells,
   cell.labels, labels.1, labels.2,
-  prune.SNN = 1/15, resolution = 0.05, group.singletons = F, min.cell = 15,
+  prune.SNN = 1/15, resolution = 0.05, group.singletons = F, min.cell = NULL,
   do.plot = T, plot.embedding = NULL, size = 0.5, do.label = F,
   ...
 ){
@@ -56,6 +56,11 @@ getDAregion <- function(
   if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
     stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
   }
+  if(is.null(min.cell)){
+    min.cell <- as.integer(colnames(da.cells$da.ratio)[1])
+    cat("Using min.cell = ", min.cell, "\n", sep = "")
+  }
+
   seurat.version <- substr(packageVersion("Seurat"),1,1)
   if(seurat.version == "3"){
     X.S <- CreateSeuratObject(counts = t(X))

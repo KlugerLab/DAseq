@@ -133,8 +133,8 @@ that may reside in DA regions.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getDAcells</span>(<span class='no'>X</span>, <span class='no'>cell.labels</span>, <span class='no'>labels.1</span>, <span class='no'>labels.2</span>, <span class='kw'>k.vector</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>save.knn</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>), <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>save.knn</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.rand</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -174,12 +174,16 @@ that may reside in DA regions.</p>
     </tr>
     <tr>
       <th>n.runs</th>
-      <td><p>integer, number of times to run the neural network to get the predictions, default 10</p></td>
+      <td><p>integer, number of times to run the neural network to get the predictions, default 5</p></td>
+    </tr>
+    <tr>
+      <th>n.rand</th>
+      <td><p>integer, number of random permutations to run, default 2</p></td>
     </tr>
     <tr>
       <th>pred.thres</th>
-      <td><p>length-2 vector, top and bottom threshold on the predictions from the
-logistic classification, default c(0.05,0.95)</p></td>
+      <td><p>length-2 vector, top and bottom threshold on DA measure,
+default NULL, select significant DA cells based on permutation</p></td>
     </tr>
     <tr>
       <th>do.plot</th>

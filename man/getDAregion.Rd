@@ -6,7 +6,7 @@
 \usage{
 getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
   prune.SNN = 1/15, resolution = 0.05, group.singletons = F,
-  min.cell = 15, do.plot = T, plot.embedding = NULL, size = 0.5,
+  min.cell = NULL, do.plot = T, plot.embedding = NULL, size = 0.5,
   do.label = F, ...)
 }
 \arguments{
@@ -26,7 +26,7 @@ getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
 
 \item{group.singletons}{parameter for Seurat function FindClusters(), default True}
 
-\item{min.cell}{integer, number of cells below which a DA region will be removed as outliers, default 15}
+\item{min.cell}{integer, number of cells below which a DA region will be removed as outliers, default NULL, use minimum k value in k-vector}
 
 \item{do.plot}{a logical value to indicate whether to return ggplot objects showing the results, default True}
 

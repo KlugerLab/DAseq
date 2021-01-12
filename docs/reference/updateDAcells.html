@@ -126,7 +126,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>updateDAcells</span>(<span class='no'>X</span>, <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.05</span>, <span class='fl'>0.95</span>), <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>updateDAcells</span>(<span class='no'>X</span>, <span class='kw'>pred.thres</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force.thres</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>k.folds</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>n.runs</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>cell.labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labels.1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>labels.2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>do.plot</span> <span class='kw'>=</span> <span class='no'>T</span>, <span class='kw'>plot.embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)</pre>
     
@@ -139,8 +139,12 @@
     </tr>
     <tr>
       <th>pred.thres</th>
-      <td><p>length-2 vector, top and bottom threshold on the predictions from the
-logistic classification, default c(0.05,0.95)</p></td>
+      <td><p>length-2 vector, top and bottom threshold on DA measure,
+default NULL, select significant DA cells based on permutation</p></td>
+    </tr>
+    <tr>
+      <th>force.thres</th>
+      <td><p>a logical value to indicate whether to forcefully use pred.thres without considering significance, default False</p></td>
     </tr>
     <tr>
       <th>alpha</th>
