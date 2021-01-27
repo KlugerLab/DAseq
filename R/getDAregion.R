@@ -69,7 +69,7 @@ getDAregion <- function(
       assay.used = DefaultAssay(X.S), key = "PC_"
     )
     X.S <- FindNeighbors(X.S, reduction = "pca", dims = 1:n.dims, prune.SNN = prune.SNN, verbose = F)
-    if(length(da.cells$da.up) > 0){
+    if(length(da.cells$da.up) > 1){
       up.S <- CreateSeuratObject(
         counts = t(X[da.cells$da.up,])
       )
@@ -90,7 +90,7 @@ getDAregion <- function(
     }
     n.up.clusters <- length(unique(up.clusters)) - as.numeric(0 %in% up.clusters)
 
-    if(length(da.cells$da.down) > 0){
+    if(length(da.cells$da.down) > 1){
       down.S <- CreateSeuratObject(
         counts = t(X[da.cells$da.down,])
       )
@@ -131,11 +131,15 @@ getDAregion <- function(
   X.n.da <- length(unique(da.region.label)) - 1
   X.da.stat <- matrix(0, nrow = X.n.da, ncol = 3)
   colnames(X.da.stat) <- c("DA.score","pval.wilcoxon","pval.ttest")
-  for(ii in 1:X.n.da){
-    X.da.stat[ii,] <- getDAscore(
-      cell.labels = cell.labels, cell.idx = which(da.region.label == ii),
-      labels.1 = labels.1, labels.2 = labels.2
-    )
+  if(X.n.da > 0){
+    for(ii in 1:X.n.da){
+      X.da.stat[ii,] <- getDAscore(
+        cell.labels = cell.labels, cell.idx = which(da.region.label == ii),
+        labels.1 = labels.1, labels.2 = labels.2
+      )
+    }
+  } else {
+    warning("No DA regions found.")
   }
 
   if(do.plot & is.null(plot.embedding)){
