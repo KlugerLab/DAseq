@@ -24,7 +24,7 @@ SeuratMarkerFinder <- function(
   }
 
   seurat.version <- substr(packageVersion("Seurat"),1,1)
-  if(seurat.version == "3"){
+  if(seurat.version == "3" | seurat.version == "4"){
     Idents(object) <- object@meta.data[,da.slot]
 
     output.markers <- list()
@@ -60,7 +60,7 @@ SeuratMarkerFinder <- function(
 #'
 addDAslot <- function(object, da.regions, da.slot = "da", set.ident = F){
   seurat.version <- substr(packageVersion("Seurat"),1,1)
-  if(seurat.version == "3"){
+  if(seurat.version == "3" | seurat.version == "4"){
     object@meta.data[,da.slot] <- da.regions$da.region.label
     if(set.ident){
       Idents(object) <- object@meta.data[,da.slot]
@@ -95,7 +95,7 @@ SeuratLocalMarkers <- function(
   cell.label.slot, cell.label.to.run, ...
 ){
   seurat.version <- substr(packageVersion("Seurat"),1,1)
-  if(seurat.version == "3"){
+  if(seurat.version == "3" | seurat.version == "4"){
     object@meta.data$"label_da" <- "notused"
     object@meta.data$"label_da"[object@meta.data[,cell.label.slot] %in% cell.label.to.run] <- "local"
     object@meta.data$"label_da"[object@meta.data[,da.slot] == da.region.to.run] <- "da"

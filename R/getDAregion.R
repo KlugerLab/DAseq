@@ -62,7 +62,7 @@ getDAregion <- function(
   }
 
   seurat.version <- substr(packageVersion("Seurat"),1,1)
-  if(seurat.version == "3"){
+  if(seurat.version == "3" | seurat.version == "4"){
     X.S <- CreateSeuratObject(counts = t(X))
     X.S@reductions$pca <- new(
       "DimReduc", cell.embeddings = X,
