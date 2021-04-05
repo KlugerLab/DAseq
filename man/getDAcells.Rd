@@ -43,6 +43,7 @@ default True}
 \value{
 a list of results
 \describe{
+  \item{cell.idx}{index of cells used in DA calculation}
   \item{da.ratio}{score vector for each cell}
   \item{da.pred}{(mean) prediction from the logistic regression}
   \item{da.up}{index for DA cells more abundant in condition of labels.2}

@@ -24,6 +24,7 @@
 #'
 #' @return a list of results
 #' \describe{
+#'   \item{cell.idx}{index of cells used in DA calculation}
 #'   \item{da.region.label}{DA region label for each cell from the whole dataset,
 #'   '0' represents non-DA cells.}
 #'   \item{DA.stat}{a table showing DA score and p-value for each DA region}
@@ -43,22 +44,30 @@ getDAregion <- function(
     cat("Turning X to a matrix.\n")
     X <- as.matrix(X)
   }
-  n.cells <- nrow(X)
-  n.dims <- ncol(X)
-  if(is.null(rownames(X))){
-    rownames(X) <- paste("C",c(1:n.cells), sep = "")
-  }
+
   # check label input
   if(!inherits(cell.labels, "character") |
      !inherits(labels.1, "character") | !inherits(labels.2, "character")){
     stop("Input parameters cell.labels, labels.1 and labels.2 must be character")
   }
   if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
-    stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
+    warning("Input parameter cell.labels contain labels not from labels.1 or labels.2, subsetting...")
+    cell.idx <- which(cell.labels %in% c(labels.1, labels.2))
+    X <- X[cell.idx,]
+    cell.labels <- cell.labels[cell.idx]
+  } else {
+    cell.idx <- seq_len(length(cell.labels))
   }
+
   if(is.null(min.cell)){
     min.cell <- as.integer(colnames(da.cells$da.ratio)[1])
     cat("Using min.cell = ", min.cell, "\n", sep = "")
+  }
+
+  n.cells <- nrow(X)
+  n.dims <- ncol(X)
+  if(is.null(rownames(X))){
+    rownames(X) <- paste("C",c(1:n.cells), sep = "")
   }
 
   seurat.version <- substr(packageVersion("Seurat"),1,1)
@@ -146,6 +155,7 @@ getDAregion <- function(
     warning("plot.embedding must be provided by user if do.plot = T")
     X.region.plot <- NULL
   } else if(do.plot & !is.null(plot.embedding)){
+    plot.embedding <- plot.embedding[cell.idx,]
     X.da.label <- da.region.label
     X.da.order <- order(X.da.label, decreasing = F)
     X.region.plot <- plotCellLabel(
@@ -157,6 +167,7 @@ getDAregion <- function(
   }
 
   return(list(
+    cell.idx = cell.idx,
     da.region.label = da.region.label,
     DA.stat = X.da.stat,
     da.region.plot = X.region.plot

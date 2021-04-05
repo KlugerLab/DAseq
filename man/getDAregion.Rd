@@ -41,6 +41,7 @@ getDAregion(X, da.cells, cell.labels, labels.1, labels.2,
 \value{
 a list of results
 \describe{
+  \item{cell.idx}{index of cells used in DA calculation}
   \item{da.region.label}{DA region label for each cell from the whole dataset,
   '0' represents non-DA cells.}
   \item{DA.stat}{a table showing DA score and p-value for each DA region}

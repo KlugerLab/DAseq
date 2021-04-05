@@ -28,6 +28,7 @@
 #'
 #' @return a list of results
 #' \describe{
+#'   \item{cell.idx}{index of cells used in DA calculation}
 #'   \item{da.ratio}{score vector for each cell}
 #'   \item{da.pred}{(mean) prediction from the logistic regression}
 #'   \item{da.up}{index for DA cells more abundant in condition of labels.2}
@@ -53,8 +54,15 @@ getDAcells <- function(
      !inherits(labels.1, "character") | !inherits(labels.2, "character")){
     stop("Input parameters cell.labels, labels.1 and labels.2 must be character")
   }
+
+  # subset input data if just using a subset of input cells
   if(length(setdiff(cell.labels, c(labels.1, labels.2))) > 0){
-    stop("Input parameter cell.labels contain labels not from labels.1 or labels.2")
+    warning("Input parameter cell.labels contain labels not from labels.1 or labels.2, subsetting...")
+    cell.idx <- which(cell.labels %in% c(labels.1, labels.2))
+    X <- X[cell.idx,]
+    cell.labels <- cell.labels[cell.idx]
+  } else {
+    cell.idx <- seq_len(length(cell.labels))
   }
   n.cells <- length(cell.labels)
 
@@ -168,6 +176,7 @@ getDAcells <- function(
     X.pred.plot <- NULL
     X.da.cells.plot <- NULL
   } else if(do.plot & !is.null(plot.embedding)){
+    plot.embedding <- plot.embedding[cell.idx,]
     X.pred.plot <- plotCellScore(
       X = plot.embedding, score = X.pred, size = size
     ) + theme(legend.title = element_blank())
@@ -201,6 +210,7 @@ getDAcells <- function(
     ))
   } else {
     return(list(
+      cell.idx = cell.idx,
       da.ratio = X.knn.ratio,
       da.pred = X.pred,
       rand.pred = X.random.pred.list,
@@ -306,6 +316,7 @@ updateDAcells <- function(
     X.pred.plot <- NULL
     X.da.cells.plot <- NULL
   } else if(do.plot & !is.null(plot.embedding)){
+    plot.embedding <- plot.embedding[X$cell.idx,]
     X.pred.plot <- plotCellScore(
       X = plot.embedding, score = X.pred, size = size
     ) + theme(legend.title = element_blank())

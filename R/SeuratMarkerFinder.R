@@ -61,7 +61,8 @@ SeuratMarkerFinder <- function(
 addDAslot <- function(object, da.regions, da.slot = "da", set.ident = F){
   seurat.version <- substr(packageVersion("Seurat"),1,1)
   if(seurat.version == "3" | seurat.version == "4"){
-    object@meta.data[,da.slot] <- da.regions$da.region.label
+    object@meta.data[,da.slot] <- NA
+    object@meta.data[,da.slot][da.regions$cell.idx] <- da.regions$da.region.label
     if(set.ident){
       Idents(object) <- object@meta.data[,da.slot]
     }
